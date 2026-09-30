@@ -119,7 +119,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             if (!cover && coverElement) {
               cover = getComputedStyle(coverElement).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "";
             }
-            return audio || title ? { title: artist ? `${artist} — ${title}` : title, cover } : null;
+            return audio || title ? { title, artist, cover } : null;
           }
           const labels = (element) => [
             element.getAttribute("aria-label"),
