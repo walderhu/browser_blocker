@@ -57,7 +57,6 @@ function initTimepicker() {
     onSelect: (hours, minutes) => {
       timerMinutes.value = hours * 60 + minutes;
       timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
-      if (mode.value === "timer" && enabled.checked) saveProtectionMode();
     }
   });
 }
@@ -68,6 +67,19 @@ enabled.addEventListener("change", () => {
 });
 
 mode.addEventListener("change", () => saveProtectionMode());
+
+timepicker.addEventListener("change", () => {
+  const match = timepicker.value.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return;
+  timerMinutes.value = Number(match[1]) * 60 + Number(match[2]);
+  if (mode.value === "timer") {
+    enabled.checked = true;
+    showState(true);
+    saveProtectionMode(true);
+  } else {
+    saveProtectionMode(enabled.checked);
+  }
+});
 
 document.getElementById("save").addEventListener("click", () => {
   const list = hosts.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
