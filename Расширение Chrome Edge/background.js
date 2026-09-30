@@ -8,6 +8,17 @@ async function getSettings() {
   return await chrome.storage.sync.get({ enabled: true, hosts: defaultHosts });
 }
 
+async function enforceOnOpenTabs() {
+  const settings = await getSettings();
+  if (!settings.enabled) return;
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    if (!tab.id || !tab.url || !isBlocked(tab.url, settings.hosts)) continue;
+    const target = chrome.runtime.getURL("block.html") + "?site=" + encodeURIComponent(tab.url);
+    await chrome.tabs.update(tab.id, { muted: true, url: target });
+  }
+}
+
 function isBlocked(url, hosts) {
   try {
     const host = new URL(url).hostname.toLowerCase();
@@ -34,4 +45,10 @@ chrome.runtime.onInstalled.addListener(async () => {
     enabled: settings.enabled ?? true,
     hosts: settings.hosts?.length ? settings.hosts : defaultHosts
   });
+});
+
+// Если защита была включена, пока заблокированный сайт уже был открыт,
+// сразу заменяем такую вкладку страницей блокировки и выключаем звук.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.enabled?.newValue === true) enforceOnOpenTabs();
 });
