@@ -24,6 +24,7 @@
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
     .music-controls { display: flex; justify-content: center; gap: 12px; margin-top: 38px; }
+    .track-title { max-width: 290px; min-height: 20px; margin: 24px auto 0; overflow: hidden; color: #aaa; font: 600 14px Consolas,"Courier New",monospace; text-overflow: ellipsis; white-space: nowrap; }
     .music-button { width: 58px; height: 50px; padding: 0; border: 0; border-radius: 0; color: #bbb; background: transparent !important; font-size: 29px; line-height: 1; cursor: pointer; transition: color .2s, transform .2s; }
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
     .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
@@ -51,6 +52,7 @@
     </div>
     <h1>Доступ ограничен</h1>
     <div id="countdown"></div>
+    <div id="track-title" class="track-title"></div>
     <div class="music-controls" aria-label="Управление Яндекс Музыкой">
       <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5 7 12l11 7V5Z"/></svg></button>
       <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>

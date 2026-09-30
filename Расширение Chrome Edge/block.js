@@ -1,4 +1,5 @@
 const countdown = document.getElementById("countdown");
+const trackTitle = document.getElementById("track-title");
 const progressRing = document.getElementById("timer-ring-progress");
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
@@ -11,6 +12,19 @@ document.querySelectorAll("[data-music-action]").forEach((button) => {
     chrome.runtime.sendMessage({ type: "musicControl", action: button.dataset.musicAction });
   });
 });
+
+function updateTrackTitle() {
+  chrome.runtime.sendMessage({ type: "musicInfo" }, (response) => {
+    if (chrome.runtime.lastError || !response?.title) {
+      trackTitle.textContent = "";
+      return;
+    }
+    trackTitle.textContent = response.title;
+  });
+}
+
+updateTrackTitle();
+setInterval(updateTrackTitle, 2000);
 
 progressRing.style.strokeDasharray = ringLength;
 

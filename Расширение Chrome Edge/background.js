@@ -74,7 +74,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type !== "musicControl") return;
+  if (message?.type !== "musicControl" && message?.type !== "musicInfo") return;
 
   chrome.tabs.query({ url: ["https://music.yandex.ru/*", "https://music.yandex.com/*"] }, async (tabs) => {
     const tab = tabs[0];
@@ -84,10 +84,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
 
     try {
-      await chrome.scripting.executeScript({
+      const result = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        args: [message.action],
+        args: [message.type === "musicInfo" ? "info" : message.action],
         func: (action) => {
+          if (action === "info") {
+            const audio = document.querySelector("audio");
+            const titleElement = document.querySelector("[class*='track__title'], [class*='track__name'], [class*='d-track__name'], [class*='player-controls__track']");
+            const artistElement = document.querySelector("[class*='track__artists'], [class*='track__artist'], [class*='d-track__artists'], [class*='d-track__artist']");
+            let title = titleElement?.textContent?.trim() || document.title.trim();
+            title = title.replace(/\s*[|—-]\s*Яндекс Музыка.*$/i, "").trim();
+            const artist = artistElement?.textContent?.trim();
+            return audio || title ? { title: artist ? `${artist} — ${title}` : title } : null;
+          }
           const labels = (element) => [
             element.getAttribute("aria-label"),
             element.getAttribute("title"),
@@ -115,7 +124,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           return Boolean(button);
         }
       });
-      sendResponse({ ok: true });
+      sendResponse(message.type === "musicInfo" ? (result[0]?.result || { ok: false }) : { ok: true });
     } catch (_) {
       sendResponse({ ok: false });
     }
