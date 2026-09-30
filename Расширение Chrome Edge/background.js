@@ -97,14 +97,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
-            const audio = document.querySelector("audio");
-            if (audio) {
-              audio.paused ? audio.play() : audio.pause();
+            const button = buttons.find(element => /пауз|воспроизвед|play|pause|player-controls__btn_play/.test(labels(element)));
+            if (button) {
+              button.click();
               return true;
             }
-            const button = buttons.find(element => /пауза|воспроизвести|play|pause|player-controls__btn_play/.test(labels(element)));
-            button?.click();
-            return Boolean(button);
+            const audio = document.querySelector("audio");
+            if (!audio) return false;
+            audio.paused ? audio.play() : audio.pause();
+            return true;
           }
           const pattern = action === "next"
             ? /следующ|впер[её]д|next|btn_next|__next/
