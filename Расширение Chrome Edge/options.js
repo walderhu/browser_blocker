@@ -16,8 +16,13 @@ function showToast(text) {
 }
 
 function showState(value) {
-  enabled.checked = value;
+  enabled.setAttribute("aria-checked", String(value));
+  enabled.classList.toggle("is-on", value);
   state.textContent = value ? "Блокировка активна" : "Блокировка выключена";
+}
+
+function isEnabled() {
+  return enabled.getAttribute("aria-checked") === "true";
 }
 
 function load() {
@@ -37,7 +42,7 @@ function renderTimepicker() {
   timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
 }
 
-function saveProtectionMode(enabledValue = enabled.checked, modeValue = "permanent") {
+function saveProtectionMode(enabledValue = isEnabled(), modeValue = "permanent") {
   const minutes = Math.max(1, Math.min(1440, Number(timerMinutes.value) || 30));
   timerMinutes.value = minutes;
   chrome.storage.sync.set({ enabled: enabledValue, mode: modeValue, timerMinutes: minutes, timerEndsAt: 0 }, () => showToast("Сохранено"));
@@ -59,16 +64,22 @@ function initTimepicker() {
   });
 }
 
-enabled.addEventListener("change", () => {
-  showState(enabled.checked);
-  saveProtectionMode(enabled.checked);
+enabled.addEventListener("click", () => {
+  const value = !isEnabled();
+  showState(value);
+  saveProtectionMode(value);
+});
+
+enabled.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  enabled.click();
 });
 
 timepicker.addEventListener("change", () => {
   const match = timepicker.value.match(/^(\d{1,2}):(\d{2})$/);
   if (!match) return;
   timerMinutes.value = Number(match[1]) * 60 + Number(match[2]);
-  enabled.checked = true;
   showState(true);
   saveProtectionMode(true, "timer");
 });
