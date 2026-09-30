@@ -12,7 +12,8 @@
     main { position: relative; width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
     .calendar-panel { position: relative; width: min(820px, calc(100vw - 420px)); height: 522px; }
     .icon-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 18px; }
-    .icon { display: block; width: 220px; height: 220px; background: url('block-art.png') center / contain no-repeat; image-rendering: pixelated; border: 0; border-radius: 0; }
+    .icon { display: block; width: 220px; height: 220px; background: url('block-art.png') center / contain no-repeat; image-rendering: pixelated; border: 0; border-radius: 0; transition: filter .25s ease; }
+    .icon:hover { filter: blur(4px); }
     .timer-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
