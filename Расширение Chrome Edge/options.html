@@ -27,7 +27,8 @@
     .blocked-sites-card.is-collapsed .collapse-toggle { transform:rotate(0deg); }
     .blocked-sites-card.is-collapsed #blockedContent { display:none; }
     .blocked-sites-card textarea { margin-top:18px; }
-    .focus-art { display:block; width:100%; height:190px; margin:0 0 20px; border:1px solid #555; border-radius:6px; filter:grayscale(.15); }
+    .focus-art { display:block; width:100%; height:190px; margin:0 0 20px; border:1px solid #555; border-radius:6px; filter:grayscale(.15); transition:filter .25s ease; }
+    .focus-art:hover { filter:grayscale(.15) blur(4px); }
     .control { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 0; }
     .control strong { display:block; font-size:16px; }
     .control small { color:var(--muted); }
