@@ -88,20 +88,30 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         target: { tabId: tab.id },
         args: [message.action],
         func: (action) => {
-          const selectors = {
-            previous: ["[aria-label*='Предыдущий']", "[aria-label*='Previous']", "[class*='player-controls__btn_prev']", "[class*='player-controls__prev']"],
-            next: ["[aria-label*='Следующий']", "[aria-label*='Next']", "[class*='player-controls__btn_next']", "[class*='player-controls__next']"]
-          };
+          const labels = (element) => [
+            element.getAttribute("aria-label"),
+            element.getAttribute("title"),
+            element.textContent,
+            element.className
+          ].filter(value => typeof value === "string").join(" ").toLowerCase();
+
+          const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
             const audio = document.querySelector("audio");
             if (audio) {
               audio.paused ? audio.play() : audio.pause();
-              return;
+              return true;
             }
-            document.querySelector("[aria-label*='Пауза'], [aria-label*='Play'], [class*='player-controls__btn_play']")?.click();
-            return;
+            const button = buttons.find(element => /пауза|воспроизвести|play|pause|player-controls__btn_play/.test(labels(element)));
+            button?.click();
+            return Boolean(button);
           }
-          selectors[action]?.map(selector => document.querySelector(selector)).find(Boolean)?.click();
+          const pattern = action === "next"
+            ? /следующ|впер[её]д|next|btn_next|__next/
+            : /предыдущ|назад|previous|prev|btn_prev|__prev/;
+          const button = buttons.find(element => pattern.test(labels(element)));
+          button?.click();
+          return Boolean(button);
         }
       });
       sendResponse({ ok: true });
