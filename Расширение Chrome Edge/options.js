@@ -5,11 +5,14 @@ const state = document.getElementById("state");
 const status = document.getElementById("status");
 const mode = document.getElementById("mode");
 const timerMinutes = document.getElementById("timerMinutes");
-const timerReadout = document.getElementById("timerReadout");
-const timerPhase = document.getElementById("timerPhase");
+const timepicker = document.getElementById("timepicker");
+const timepickerBackdrop = document.getElementById("timepickerBackdrop");
+const pickerHours = document.getElementById("pickerHours");
+const pickerMinutes = document.getElementById("pickerMinutes");
 const clock = document.getElementById("clock");
 let toastTimer;
 let selectedHours = 0;
+let selectedMinutes = 30;
 
 function showToast(text) {
   status.textContent = text;
@@ -29,16 +32,15 @@ function load() {
     hosts.value = settings.hosts.join("\n");
     mode.value = settings.mode;
     timerMinutes.value = settings.timerMinutes;
-    renderTimerReadout();
-    showHours();
+    renderTimepicker();
   });
 }
 
-function renderTimerReadout() {
+function renderTimepicker() {
   const total = Number(timerMinutes.value) || 30;
   const hours = Math.floor(total / 60);
   const minutes = total % 60;
-  timerReadout.textContent = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
+  timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
 }
 
 function saveProtectionMode(enabledValue = enabled.checked) {
@@ -71,7 +73,10 @@ function drawClock(values, onPick) {
 }
 
 function showHours() {
-  timerPhase.textContent = "Выбери часы";
+  pickerHours.classList.add("active");
+  pickerMinutes.classList.remove("active");
+  pickerHours.textContent = String(selectedHours).padStart(2, "0");
+  pickerMinutes.textContent = String(selectedMinutes).padStart(2, "0");
   drawClock([12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], (hours) => {
     selectedHours = hours;
     showMinutes();
@@ -88,16 +93,43 @@ function showHours() {
 }
 
 function showMinutes() {
-  timerPhase.textContent = "Теперь выбери минуты";
+  pickerHours.classList.remove("active");
+  pickerMinutes.classList.add("active");
+  pickerHours.textContent = String(selectedHours).padStart(2, "0");
+  pickerMinutes.textContent = String(selectedMinutes).padStart(2, "0");
   drawClock(Array.from({ length: 12 }, (_, index) => index * 5), (minutes) => {
-    const total = selectedHours * 60 + minutes;
-    if (total === 0) return;
-    timerMinutes.value = total;
-    renderTimerReadout();
-    if (mode.value === "timer" && enabled.checked) saveProtectionMode();
-    showHours();
+    selectedMinutes = minutes;
+    pickerMinutes.textContent = String(selectedMinutes).padStart(2, "0");
   });
 }
+
+function openTimepicker() {
+  const total = Number(timerMinutes.value) || 30;
+  selectedHours = Math.floor(total / 60);
+  selectedMinutes = total % 60;
+  timepickerBackdrop.hidden = false;
+  showHours();
+}
+
+timepicker.addEventListener("click", openTimepicker);
+pickerHours.addEventListener("click", showHours);
+pickerMinutes.addEventListener("click", showMinutes);
+document.getElementById("cancelTime").addEventListener("click", () => { timepickerBackdrop.hidden = true; });
+document.getElementById("doneTime").addEventListener("click", () => {
+  const total = selectedHours * 60 + selectedMinutes;
+  if (!total) return;
+  timerMinutes.value = total;
+  renderTimepicker();
+  timepickerBackdrop.hidden = true;
+  if (mode.value === "timer" && enabled.checked) saveProtectionMode();
+});
+document.getElementById("clearTime").addEventListener("click", () => {
+  timerMinutes.value = 30;
+  renderTimepicker();
+  timepickerBackdrop.hidden = true;
+  showToast("Очищено");
+});
+timepickerBackdrop.addEventListener("click", (event) => { if (event.target === timepickerBackdrop) timepickerBackdrop.hidden = true; });
 
 document.getElementById("save").addEventListener("click", () => {
   const list = hosts.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
