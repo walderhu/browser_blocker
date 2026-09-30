@@ -142,7 +142,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             if (!cover && coverElement) {
               cover = getComputedStyle(coverElement).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "";
             }
-            return audio || title ? { title, artist, cover } : null;
+            return audio || title ? { title, artist, cover, paused: audio ? audio.paused : null } : null;
           }
           const labels = (element) => [
             element.getAttribute("aria-label"),
@@ -153,21 +153,23 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
+            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
+              || document.querySelector("audio");
+            if (audio) {
+              if (audio.paused) {
+                audio.play().catch(() => {});
+              } else {
+                audio.pause();
+              }
+              return true;
+            }
             const button = buttons.find(element => /пауз|play|pause|player-controls__btn_play/.test(labels(element)))
               || buttons.find(element => /воспроизвед/.test(labels(element)));
             if (button) {
               button.click();
               return true;
             }
-            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
-              || document.querySelector("audio");
-            if (!audio) return false;
-            if (audio.paused) {
-              audio.play().catch(() => {});
-            } else {
-              audio.pause();
-            }
-            return true;
+            return false;
           }
           const pattern = action === "next"
             ? /следующ|впер[её]д|next|btn_next|__next/

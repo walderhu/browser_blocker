@@ -7,6 +7,7 @@ const timerLock = document.getElementById("timer-lock");
 const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
+const pauseButton = document.querySelector('[data-music-action="pause"]');
 const progressRing = document.getElementById("timer-ring-progress");
 const calendarFrame = document.querySelector(".calendar-frame");
 const calendarThemeButton = document.getElementById("calendar-theme");
@@ -178,9 +179,19 @@ renderCalendar();
 
 document.querySelectorAll("[data-music-action]").forEach((button) => {
   button.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ type: "musicControl", action: button.dataset.musicAction });
+    chrome.runtime.sendMessage({ type: "musicControl", action: button.dataset.musicAction }, () => {
+      if (button.dataset.musicAction === "pause") setTimeout(updateTrackTitle, 150);
+    });
   });
 });
+
+function updatePauseButton(paused) {
+  if (!pauseButton || typeof paused !== "boolean") return;
+  pauseButton.querySelector("svg").innerHTML = paused
+    ? '<path d="m8 5 11 7-11 7V5Z"/>'
+    : '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+  pauseButton.setAttribute("aria-label", paused ? "Воспроизвести" : "Пауза");
+}
 
 function updateTrackTitle() {
   chrome.runtime.sendMessage({ type: "musicInfo" }, (response) => {
@@ -192,6 +203,7 @@ function updateTrackTitle() {
     }
     trackTitle.textContent = response.title;
     trackArtist.textContent = response.artist || "";
+    updatePauseButton(response.paused);
     if (response.cover) {
       trackCover.src = response.cover;
       trackCover.style.display = "block";
