@@ -153,14 +153,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
-            const button = buttons.find(element => /пауз|воспроизвед|play|pause|player-controls__btn_play/.test(labels(element)));
+            const button = buttons.find(element => /пауз|play|pause|player-controls__btn_play/.test(labels(element)))
+              || buttons.find(element => /воспроизвед/.test(labels(element)));
             if (button) {
               button.click();
               return true;
             }
-            const audio = document.querySelector("audio");
+            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
+              || document.querySelector("audio");
             if (!audio) return false;
-            audio.paused ? audio.play() : audio.pause();
+            if (audio.paused) {
+              audio.play().catch(() => {});
+            } else {
+              audio.pause();
+            }
             return true;
           }
           const pattern = action === "next"
