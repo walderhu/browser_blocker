@@ -25,13 +25,13 @@
     .timer-settings { display:flex; align-items:center; gap:10px; padding:16px 0 4px; }
     .timer-settings label { color:var(--muted); }
     select { padding:9px 10px; border:1px solid #666; border-radius:5px; color:var(--text); background:#292929; font:14px "Segoe UI",Arial; }
-    .timepicker-input { width:92px !important; padding:9px 12px !important; border:1px solid #777 !important; border-radius:5px !important; color:var(--text) !important; background:#292929 !important; font:600 14px Consolas,monospace !important; text-align:center; cursor:pointer; }
-    .switch { position:relative; width:52px; height:29px; flex:0 0 auto; }
-    .switch input { opacity:0; width:0; height:0; }
-    .slider { position:absolute; inset:0; border-radius:30px; background:#444; cursor:pointer; transition:.2s; }
-    .slider:before { content:""; position:absolute; width:21px; height:21px; left:4px; top:4px; border-radius:50%; background:white; transition:.2s; }
-    input:checked + .slider { background:#45c985; }
-    input:checked + .slider:before { transform:translateX(23px); }
+    .timepicker-input { width:92px !important; height:34px !important; min-height:34px !important; margin:0 !important; padding:6px 10px !important; border:1px solid #777 !important; border-radius:5px !important; color:var(--text) !important; background:#292929 !important; font:600 14px Consolas,monospace !important; line-height:20px !important; text-align:center; cursor:pointer; }
+    .focus-switch { position:relative; width:52px; height:29px; flex:0 0 auto; display:block; }
+    .focus-switch input { position:absolute; opacity:0; width:0; height:0; }
+    .focus-switch .slider { position:absolute; inset:0; display:block; border-radius:30px; background:#444; cursor:pointer; transition:.2s; }
+    .focus-switch .slider:before { content:""; position:absolute; width:21px; height:21px; left:4px; top:4px; border-radius:50%; background:white; transition:.2s; }
+    .focus-switch input:checked + .slider { background:#45c985; }
+    .focus-switch input:checked + .slider:before { transform:translateX(23px); }
     textarea { width:100%; min-height:260px; resize:vertical; padding:14px; border:1px solid var(--line); border-radius:12px; outline:0; color:var(--text); background:#101010; font:13px Consolas,monospace; }
     textarea:focus { border-color:#a8a8a8; box-shadow:0 0 0 3px #a8a8a822; }
     textarea::placeholder { color:#777; opacity:1; }
@@ -56,7 +56,7 @@
   <main class="shell">
     <section class="grid">
       <div class="card"><img class="focus-art" src="main-art.png" alt=""><h2>Основные настройки</h2>
-        <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
+        <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><label class="focus-switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
         <div class="timer-settings"><label for="mode">Режим:</label><select id="mode"><option value="permanent">Постоянно</option><option value="timer">По таймеру</option></select><input id="timepicker" class="timepicker timepicker-input" type="text" value="00:30" placeholder="Время"><input id="timerMinutes" type="hidden" value="30"></div>
       </div>
       <div class="card"><h2>Заблокированные сайты</h2><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
