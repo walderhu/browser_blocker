@@ -9,7 +9,7 @@
     html, body { overflow: hidden; }
     body { margin: 0; min-height: 100vh; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; font-family: Segoe UI, Arial, sans-serif; background: linear-gradient(#090909b8, #090909d9), url('loading-bg.png') center / cover fixed; color: #f0f0f0; }
     main, .calendar-panel { box-sizing: border-box; border: 1px solid #4a4a4a; border-radius: 8px; background: linear-gradient(145deg, #202020, #151515); box-shadow: 0 20px 60px #000b; }
-    main { width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
+    main { position: relative; width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
     .calendar-panel { width: min(820px, calc(100vw - 420px)); height: 522px; }
     .icon-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 18px; }
     .icon { display: block; width: 220px; height: 220px; object-fit: contain; image-rendering: pixelated; border: 0; border-radius: 0; background: transparent; }
@@ -17,6 +17,8 @@
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
     .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
+    .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #555; border-radius: 50%; color: #aaa; background: #252525; font: 700 17px Segoe UI, Arial, sans-serif; text-decoration: none; transition: color .2s, border-color .2s, background .2s; }
+    .settings-button:hover { color: #45c985; border-color: #45c985; background: #303030; }
     h1 { margin: 0 0 14px; font: 700 36px Consolas, "Courier New", monospace; }
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
@@ -31,6 +33,7 @@
 </head>
 <body>
   <main>
+    <a class="settings-button" href="options.html" target="_blank" rel="noopener noreferrer" aria-label="Открыть расширенные настройки">✎</a>
     <div class="icon-wrap">
       <img class="icon" src="block-art.png" alt="">
       <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
