@@ -17,8 +17,9 @@
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
     .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
-    .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #555; border-radius: 50%; color: #aaa; background: #252525; font: 700 17px Segoe UI, Arial, sans-serif; text-decoration: none; transition: color .2s, border-color .2s, background .2s; }
-    .settings-button:hover { color: #45c985; border-color: #45c985; background: #303030; }
+    .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
+    .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
+    .settings-button svg { width: 19px; height: 19px; fill: currentColor; }
     h1 { margin: 0 0 14px; font: 700 36px Consolas, "Courier New", monospace; }
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
@@ -33,7 +34,9 @@
 </head>
 <body>
   <main>
-    <a class="settings-button" href="options.html" target="_blank" rel="noopener noreferrer" aria-label="Открыть расширенные настройки">✎</a>
+    <a class="settings-button" href="options.html" target="_blank" rel="noopener noreferrer" aria-label="Открыть расширенные настройки">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.25V20h2.75L17.81 8.94l-2.75-2.75L4 17.25Zm15.71-9.04a.996.996 0 0 0 0-1.41l-2.51-2.51a.996.996 0 1 0-1.41 1.41l2.51 2.51a.996.996 0 0 0 1.41 0Z"/></svg>
+    </a>
     <div class="icon-wrap">
       <img class="icon" src="block-art.png" alt="">
       <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
