@@ -25,7 +25,7 @@
     .switch input { opacity:0; width:0; height:0; }
     .slider { position:absolute; inset:0; border-radius:30px; background:#444; cursor:pointer; transition:.2s; }
     .slider:before { content:""; position:absolute; width:21px; height:21px; left:4px; top:4px; border-radius:50%; background:white; transition:.2s; }
-    input:checked + .slider { background:#ddd; }
+    input:checked + .slider { background:#45c985; }
     input:checked + .slider:before { transform:translateX(23px); }
     textarea { width:100%; min-height:260px; resize:vertical; padding:14px; border:1px solid var(--line); border-radius:12px; outline:0; color:var(--text); background:#101010; font:13px Consolas,monospace; }
     textarea:focus { border-color:#a8a8a8; box-shadow:0 0 0 3px #a8a8a822; }
@@ -34,13 +34,7 @@
     button { padding:11px 16px; border:1px solid #777; border-radius:5px; color:#111; background:var(--blue); font:600 14px "Segoe UI",Arial; cursor:pointer; }
     button:hover { filter:brightness(1.1); }
     button.secondary { color:var(--text); background:#292929; }
-    button.analyze { margin-top:4px; color:var(--text); background:#3a3a3a; border-color:#777; }
     #status { min-height:22px; margin-top:12px; color:#7ce2ad; }
-    #historyResults { display:grid; gap:8px; margin-top:16px; }
-    .history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid #383838; border-radius:5px; background:#151515; }
-    .history-item input { width:16px; height:16px; accent-color:#d6d6d6; }
-    .history-item small { display:block; color:#888; }
-    .empty { color:#888; padding:8px 0; }
     .tips { display:grid; gap:12px; margin-top:14px; }
     @media (max-width:700px) { .shell { padding-top:28px; } .grid { grid-template-columns:1fr; } h1 { font-size:26px; } }
   </style>
@@ -49,11 +43,9 @@
   <main class="shell">
     <section class="grid">
       <div class="card"><img class="focus-art" src="loading-bg.png" alt=""><h2>Основные настройки</h2>
-        <div class="control"><div><strong>Защита включена</strong><small>Запрещённые сайты откроют страницу блокировки.</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
-        <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><span id="badge">●</span></div>
+        <div class="control"><div><strong>Защита</strong><small id="state">Загрузка…</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
       </div>
       <div class="card"><h2>Заблокированные сайты</h2><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
-      <div class="card"><h2>Поиск отвлекающих сайтов</h2><button id="analyze" class="analyze">Проанализировать историю браузера</button><div id="historyResults"></div></div>
     </section>
   </main>
   <script src="options.js"></script>
