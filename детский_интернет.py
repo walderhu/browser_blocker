@@ -8,7 +8,7 @@ from pathlib import Path
 from tkinter import messagebox
 
 
-APP_TITLE = "Детский Интернет"
+APP_TITLE = "Режим концентрации"
 MARKER_START = "# >>> CHILD_SAFE_BLOCK_START >>>"
 MARKER_END = "# <<< CHILD_SAFE_BLOCK_END <<<"
 HOSTS_PATH = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32" / "drivers" / "etc" / "hosts"
