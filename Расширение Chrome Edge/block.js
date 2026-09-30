@@ -8,20 +8,8 @@ const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
 const progressRing = document.getElementById("timer-ring-progress");
-const calendarPanel = document.querySelector(".calendar-panel");
+const calendarFrame = document.querySelector(".calendar-frame");
 const calendarThemeButton = document.getElementById("calendar-theme");
-const calendarDays = document.getElementById("calendar-days");
-const addEventButton = document.getElementById("add-event");
-const eventDialog = document.getElementById("event-dialog");
-const eventForm = document.getElementById("event-form");
-const eventTitle = document.getElementById("event-title");
-const eventDate = document.getElementById("event-date");
-const eventTime = document.getElementById("event-time");
-const cancelEvent = document.getElementById("cancel-event");
-const googleLogin = document.getElementById("google-login");
-const GOOGLE_CLIENT_ID = "205794802854-ghld15d1198nqu7gim17e399lj8ou89g.apps.googleusercontent.com";
-const GOOGLE_SCOPE = "https://www.googleapis.com/auth/calendar";
-const GOOGLE_CALENDARS = ["tru60117@gmail.com", "o9h6dglqoqrdrocjvh81m53490@group.calendar.google.com"];
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
@@ -48,8 +36,12 @@ trackCover.addEventListener("error", () => {
 });
 
 function setCalendarTheme(isLight) {
-  if (!calendarPanel || !calendarThemeButton) return;
-  calendarPanel.classList.toggle("is-light", isLight);
+  if (!calendarFrame || !calendarThemeButton) return;
+  const darkUrl = calendarFrame.dataset.darkUrl || calendarFrame.src;
+  const lightUrl = darkUrl.replace("bgcolor=%23151515", "bgcolor=%23ffffff");
+  calendarFrame.dataset.darkUrl = darkUrl;
+  calendarFrame.src = isLight ? lightUrl : darkUrl;
+  calendarFrame.classList.toggle("is-light", isLight);
   calendarThemeButton.innerHTML = isLight
     ? '<svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15.2A9 9 0 1 1 8.8 3.3 6.8 6.8 0 0 0 21 15.2Z"/></svg>'
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
@@ -58,8 +50,9 @@ function setCalendarTheme(isLight) {
 }
 
 setCalendarTheme(localStorage.getItem("calendarTheme") === "light");
-calendarThemeButton?.addEventListener("click", () => setCalendarTheme(!calendarPanel.classList.contains("is-light")));
+calendarThemeButton?.addEventListener("click", () => setCalendarTheme(!calendarFrame.classList.contains("is-light")));
 
+/* Legacy custom calendar kept below for reference; the Google embed is active.
 function dateKey(date) {
   return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
 }
@@ -181,6 +174,7 @@ calendarDays?.addEventListener("click", async (event) => {
   renderCalendar();
 });
 renderCalendar();
+*/
 
 document.querySelectorAll("[data-music-action]").forEach((button) => {
   button.addEventListener("click", () => {
