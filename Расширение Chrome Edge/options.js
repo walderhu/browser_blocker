@@ -8,9 +8,34 @@ const timepicker = document.getElementById("timepicker");
 const blockedSitesCard = document.querySelector(".blocked-sites-card");
 const toggleBlocked = document.getElementById("toggleBlocked");
 const blockedHeader = document.getElementById("blockedHeader");
+const focusArt = document.getElementById("focus-art");
 let toastTimer;
 let timepickerInstance;
 let countdownTimer;
+
+function drawFocusArt() {
+  if (!focusArt) return;
+  const image = new Image();
+  image.onload = () => {
+    const width = focusArt.clientWidth;
+    const height = focusArt.clientHeight;
+    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+    const sourceWidth = width / scale;
+    const sourceHeight = height / scale;
+    const sourceY = (image.naturalHeight - sourceHeight) * 0.72;
+    const pixelRatio = window.devicePixelRatio || 1;
+    focusArt.width = width * pixelRatio;
+    focusArt.height = height * pixelRatio;
+    const context = focusArt.getContext("2d");
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.clearRect(0, 0, width, height);
+    context.drawImage(image, (image.naturalWidth - sourceWidth) / 2, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
+  };
+  image.src = chrome.runtime.getURL("main-art.png");
+}
+
+drawFocusArt();
+window.addEventListener("resize", drawFocusArt);
 
 function setBlockedSitesCollapsed(collapsed) {
   blockedSitesCard.classList.toggle("is-collapsed", collapsed);
