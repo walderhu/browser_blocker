@@ -13,7 +13,7 @@
     .logo { width:76px; height:76px; object-fit:cover; image-rendering:pixelated; border:2px solid #6b6b6b; border-radius:8px; box-shadow:0 12px 30px #0008; background:#111; }
     h1 { margin:0; font-size:32px; letter-spacing:-.5px; font-family:Consolas,"Courier New",monospace; }
     .subtitle { margin:5px 0 0; color:var(--muted); }
-    .grid { display:grid; grid-template-columns:1.25fr .75fr; gap:18px; }
+    .grid { display:grid; grid-template-columns:1fr; gap:18px; }
     .card { padding:24px; border:1px solid var(--line); border-radius:8px; background:linear-gradient(145deg,#202020,#151515); box-shadow:0 18px 45px #0008; }
     .card h2 { margin:0 0 6px; font-size:19px; }
     .card p { margin:0 0 18px; color:var(--muted); }
@@ -36,21 +36,18 @@
     button.secondary { color:var(--text); background:#292929; }
     #status { min-height:22px; margin-top:12px; color:#7ce2ad; }
     .tips { display:grid; gap:12px; margin-top:14px; }
-    .tip { padding:14px; border-radius:5px; color:var(--muted); background:#101010; border-left:3px solid #777; }
-    .tip b { color:var(--text); }
     @media (max-width:700px) { .shell { padding-top:28px; } .grid { grid-template-columns:1fr; } h1 { font-size:26px; } }
   </style>
 </head>
 <body>
   <main class="shell">
-    <header class="hero"><img class="logo" src="icon.png" alt=""><div><h1>Режим концентрации</h1><p class="subtitle">Управляй отвлекающими сайтами прямо из браузера.</p></div></header>
+    <header class="hero"><img class="logo" src="icon.png" alt=""><div><h1>Режим концентрации</h1></div></header>
     <section class="grid">
       <div class="card"><h2>Основные настройки</h2><p>Изменения сохраняются для Chrome/Edge автоматически.</p>
         <div class="control"><div><strong>Защита включена</strong><small>Запрещённые сайты откроют страницу блокировки.</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><span id="badge">●</span></div>
       </div>
-      <div class="card"><h2>Как это работает</h2><div class="tips"><div class="tip"><b>1. Список сайтов</b><br>Каждый домен указывается с новой строки.</div><div class="tip"><b>2. Перехват перехода</b><br>Появляется собственная страница блокировки.</div><div class="tip"><b>3. Быстрое управление</b><br>Переключатель доступен по значку расширения.</div></div></div>
-      <div class="card" style="grid-column:1/-1"><h2>Заблокированные сайты</h2><p>Указывай домен без <code>https://</code>. Поддомены тоже блокируются.</p><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
+      <div class="card"><h2>Заблокированные сайты</h2><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
     </section>
   </main>
   <script src="options.js"></script>
