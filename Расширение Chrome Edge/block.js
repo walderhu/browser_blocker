@@ -69,8 +69,9 @@ function escapeHtml(value) {
 }
 
 async function getGoogleToken(interactive = false) {
-  const result = await chrome.identity.getAuthToken({ interactive });
-  return typeof result === "string" ? result : result?.token || null;
+  const response = await chrome.runtime.sendMessage({ type: "googleAuth", interactive });
+  if (response?.error) throw new Error(response.error);
+  return response?.token || null;
 }
 
 async function googleRequest(url, options = {}, interactive = false) {
@@ -140,11 +141,16 @@ function openEventDialog() {
 
 addEventButton?.addEventListener("click", openEventDialog);
 googleLogin?.addEventListener("click", async () => {
+  googleLogin.textContent = "Вход...";
+  googleLogin.disabled = true;
   try {
     await getGoogleToken(true);
     await renderCalendar();
   } catch (error) {
     googleLogin.textContent = "Войти Google";
+    googleLogin.title = error.message || "Не удалось выполнить вход";
+  } finally {
+    googleLogin.disabled = false;
   }
 });
 cancelEvent?.addEventListener("click", () => eventDialog.close());

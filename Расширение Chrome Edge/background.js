@@ -92,6 +92,13 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "googleAuth") {
+    chrome.identity.getAuthToken({ interactive: Boolean(message.interactive) })
+      .then(result => sendResponse({ token: typeof result === "string" ? result : result?.token || null }))
+      .catch(error => sendResponse({ error: error.message || "Google authorization failed" }));
+    return true;
+  }
+
   if (message?.type === "openFocusPage") {
     const focusUrl = chrome.runtime.getURL("block.html");
     chrome.tabs.query({}).then(async (tabs) => {
