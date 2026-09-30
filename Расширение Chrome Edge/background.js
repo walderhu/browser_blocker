@@ -4,6 +4,8 @@ const defaultHosts = [
   "youtube-nocookie.com"
 ];
 
+chrome.action.onClicked.addListener(() => chrome.runtime.openOptionsPage());
+
 async function getSettings() {
   return await chrome.storage.sync.get({ enabled: true, hosts: defaultHosts, mode: "permanent", timerMinutes: 30, timerEndsAt: 0 });
 }
