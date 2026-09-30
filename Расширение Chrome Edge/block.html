@@ -26,6 +26,8 @@
     .music-controls { display: flex; justify-content: center; gap: 12px; margin-top: 38px; }
     .music-button { width: 58px; height: 50px; padding: 0; border: 0; border-radius: 0; color: #bbb; background: transparent !important; font-size: 29px; line-height: 1; cursor: pointer; transition: color .2s, transform .2s; }
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
+    .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
+    .music-button .pause-icon { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
     .calendar-panel { overflow: hidden; }
     .calendar-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid #444; color: #aaa; font: 600 14px Consolas,"Courier New",monospace; }
     .calendar-heading a { color: #45c985; text-decoration: none; }
@@ -50,9 +52,9 @@
     <h1>Доступ ограничен</h1>
     <div id="countdown"></div>
     <div class="music-controls" aria-label="Управление Яндекс Музыкой">
-      <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек">⏮</button>
-      <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение">⏯</button>
-      <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек">⏭</button>
+      <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5 7 12l11 7V5Z"/></svg></button>
+      <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+      <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 11 7-11 7V5Z"/></svg></button>
     </div>
   </main>
   <section class="calendar-panel" aria-label="Мой календарь">
