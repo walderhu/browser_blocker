@@ -6,6 +6,12 @@ const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
 let restored = false;
 
+document.querySelectorAll("[data-music-action]").forEach((button) => {
+  button.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "musicControl", action: button.dataset.musicAction });
+  });
+});
+
 progressRing.style.strokeDasharray = ringLength;
 
 function setRingProgress(progress) {

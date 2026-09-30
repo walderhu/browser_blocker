@@ -23,6 +23,9 @@
     h1 { margin: 0 0 14px; font: 700 36px Consolas, "Courier New", monospace; }
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
+    .music-controls { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+    .music-button { width: 38px; height: 32px; border: 1px solid #555; border-radius: 6px; color: #bbb; background: #252525; font-size: 17px; line-height: 1; cursor: pointer; transition: color .2s, border-color .2s, background .2s; }
+    .music-button:hover { color: #45c985; border-color: #45c985; background: #303030; }
     .calendar-panel { overflow: hidden; }
     .calendar-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid #444; color: #aaa; font: 600 14px Consolas,"Courier New",monospace; }
     .calendar-heading a { color: #45c985; text-decoration: none; }
@@ -46,6 +49,11 @@
     </div>
     <h1>Доступ ограничен</h1>
     <div id="countdown"></div>
+    <div class="music-controls" aria-label="Управление Яндекс Музыкой">
+      <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек">⏮</button>
+      <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение">⏯</button>
+      <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек">⏭</button>
+    </div>
   </main>
   <section class="calendar-panel" aria-label="Мой календарь">
     <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?src=tru60117%40gmail.com&color=%234285f4&src=o9h6dglqoqrdrocjvh81m53490%40group.calendar.google.com&color=%23d50000&ctz=Europe%2FMoscow&mode=WEEK&showCalendars=1&showTabs=0&showTz=0" title="Мои календари" loading="lazy"></iframe>

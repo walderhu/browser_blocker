@@ -73,6 +73,45 @@ chrome.runtime.onInstalled.addListener(async () => {
   await syncTimer();
 });
 
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type !== "musicControl") return;
+
+  chrome.tabs.query({ url: ["https://music.yandex.ru/*", "https://music.yandex.com/*"] }, async (tabs) => {
+    const tab = tabs[0];
+    if (!tab?.id) {
+      sendResponse({ ok: false });
+      return;
+    }
+
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        args: [message.action],
+        func: (action) => {
+          const selectors = {
+            previous: ["[aria-label*='Предыдущий']", "[aria-label*='Previous']", "[class*='player-controls__btn_prev']", "[class*='player-controls__prev']"],
+            next: ["[aria-label*='Следующий']", "[aria-label*='Next']", "[class*='player-controls__btn_next']", "[class*='player-controls__next']"]
+          };
+          if (action === "pause") {
+            const audio = document.querySelector("audio");
+            if (audio) {
+              audio.paused ? audio.play() : audio.pause();
+              return;
+            }
+            document.querySelector("[aria-label*='Пауза'], [aria-label*='Play'], [class*='player-controls__btn_play']")?.click();
+            return;
+          }
+          selectors[action]?.map(selector => document.querySelector(selector)).find(Boolean)?.click();
+        }
+      });
+      sendResponse({ ok: true });
+    } catch (_) {
+      sendResponse({ ok: false });
+    }
+  });
+  return true;
+});
+
 // Если защита была включена, пока заблокированный сайт уже был открыт,
 // сразу заменяем такую вкладку страницей блокировки и выключаем звук.
 chrome.storage.onChanged.addListener((changes, area) => {
