@@ -41,9 +41,10 @@
     button.secondary { color:var(--text); background:#292929; }
     #status { position:fixed; right:24px; top:24px; z-index:10; padding:12px 18px; border:1px solid #777; border-radius:5px; color:#f0f0f0; background:#242424; box-shadow:0 8px 24px #000b; opacity:0; transform:translateX(18px); pointer-events:none; transition:opacity .2s,transform .2s; }
     #status.show { opacity:1; transform:translateX(0); }
-    .timepicker-display { background:#292929 !important; }
+    .timepicker-display { background:#292929 !important; color:#fff !important; }
+    .timepicker-display-hours, .timepicker-display-minutes, .timepicker-display-ampm { color:#fff !important; opacity:1 !important; }
     .timepicker-display-am-pm, .timepicker-close { color:#45c985 !important; }
-    .timepicker-tick { color:#f0f0f0 !important; }
+    .timepicker-tick { color:#fff !important; opacity:1 !important; text-shadow:0 1px 2px #000; }
     .timepicker-tick.active, .timepicker-tick:hover { background:#45c985 !important; color:#111 !important; }
     .timepicker-canvas line, .timepicker-canvas-bg { stroke:#45c985 !important; fill:#45c985 !important; }
     .tips { display:grid; gap:12px; margin-top:14px; }
