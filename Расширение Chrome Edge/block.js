@@ -1,11 +1,28 @@
 const countdown = document.getElementById("countdown");
 const trackTitle = document.getElementById("track-title");
 const progressRing = document.getElementById("timer-ring-progress");
+const calendarFrame = document.querySelector(".calendar-frame");
+const calendarThemeButton = document.getElementById("calendar-theme");
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
 let restored = false;
+
+const darkCalendarUrl = calendarFrame?.src || "";
+const lightCalendarUrl = darkCalendarUrl.replace("bgcolor=%23151515", "bgcolor=%23ffffff");
+
+function setCalendarTheme(isLight) {
+  if (!calendarFrame || !calendarThemeButton) return;
+  calendarFrame.src = isLight ? lightCalendarUrl : darkCalendarUrl;
+  calendarFrame.classList.toggle("is-light", isLight);
+  calendarThemeButton.textContent = isLight ? "☾" : "☀";
+  calendarThemeButton.setAttribute("aria-label", isLight ? "Включить тёмную тему календаря" : "Включить светлую тему календаря");
+  localStorage.setItem("calendarTheme", isLight ? "light" : "dark");
+}
+
+setCalendarTheme(localStorage.getItem("calendarTheme") === "light");
+calendarThemeButton?.addEventListener("click", () => setCalendarTheme(!calendarFrame.classList.contains("is-light")));
 
 document.querySelectorAll("[data-music-action]").forEach((button) => {
   button.addEventListener("click", () => {
