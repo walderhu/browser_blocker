@@ -10,6 +10,10 @@ const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
 let restored = false;
 
+trackCover.addEventListener("error", () => {
+  trackCover.style.display = "none";
+});
+
 const darkCalendarUrl = calendarFrame?.src || "";
 const lightCalendarUrl = darkCalendarUrl.replace("bgcolor=%23151515", "bgcolor=%23ffffff");
 

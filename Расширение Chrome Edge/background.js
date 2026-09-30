@@ -114,7 +114,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             let title = metadata?.title?.trim() || titleElement?.textContent?.trim() || "";
             title = title.replace(/\s*[|—-]\s*Яндекс Музыка.*$/i, "").trim();
             const artist = metadata?.artist?.trim() || artistElement?.textContent?.trim() || "";
-            const cover = metadata?.artwork?.[0]?.src?.replace(/\{w\}/g, "160").replace(/\{h\}/g, "160").replace(/\{c\}/g, "1") || "";
+            const coverElement = document.querySelector("[class*='track__cover'] img, [class*='track-cover'] img, [class*='player-controls__cover'] img, [class*='d-track__cover'] img, img[src*='avatars.yandex']");
+            let cover = metadata?.artwork?.[0]?.src?.replace(/\{w\}/g, "160").replace(/\{h\}/g, "160").replace(/\{c\}/g, "1") || coverElement?.currentSrc || coverElement?.src || "";
+            if (!cover && coverElement) {
+              cover = getComputedStyle(coverElement).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] || "";
+            }
             return audio || title ? { title: artist ? `${artist} — ${title}` : title, cover } : null;
           }
           const labels = (element) => [
