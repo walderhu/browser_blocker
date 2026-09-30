@@ -76,6 +76,21 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "openFocusPage") {
+    const focusUrl = chrome.runtime.getURL("block.html");
+    chrome.tabs.query({}).then(async (tabs) => {
+      const existing = tabs.find(tab => tab.url?.startsWith(focusUrl));
+      if (existing?.id) {
+        await chrome.tabs.update(existing.id, { active: true });
+        if (existing.windowId) await chrome.windows.update(existing.windowId, { focused: true });
+      } else {
+        await chrome.tabs.create({ url: focusUrl, active: true });
+      }
+      sendResponse({ ok: true });
+    }).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
+
   if (message?.type !== "musicControl" && message?.type !== "musicInfo") return;
 
   chrome.tabs.query({ url: ["https://music.yandex.ru/*", "https://music.yandex.com/*"] }, async (tabs) => {

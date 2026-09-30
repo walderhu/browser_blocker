@@ -109,7 +109,10 @@ function updateTimerDisplay(settings) {
 function saveProtectionMode(enabledValue = isEnabled(), modeValue = "permanent") {
   const minutes = Math.max(1, Math.min(1440, Number(timerMinutes.value) || 30));
   timerMinutes.value = minutes;
-  chrome.storage.sync.set({ enabled: enabledValue, mode: modeValue, timerMinutes: minutes, timerEndsAt: 0 }, () => showToast("Сохранено"));
+  chrome.storage.sync.set({ enabled: enabledValue, mode: modeValue, timerMinutes: minutes, timerEndsAt: 0 }, () => {
+    showToast("Сохранено");
+    if (enabledValue && modeValue === "timer") chrome.runtime.sendMessage({ type: "openFocusPage" });
+  });
 }
 
 function initTimepicker() {

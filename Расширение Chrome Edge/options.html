@@ -38,6 +38,8 @@
     textarea:focus { border-color:#a8a8a8; box-shadow:0 0 0 3px #a8a8a822; }
     textarea::placeholder { color:#777; opacity:1; }
     .buttons { display:flex; gap:10px; margin-top:14px; }
+    .focus-link { display:inline-flex; align-items:center; margin-top:16px; color:#45c985; font-size:14px; text-decoration:none; }
+    .focus-link:hover { text-decoration:underline; }
     button { padding:11px 16px; border:1px solid #777; border-radius:5px; color:#111; background:var(--blue); font:600 14px "Segoe UI",Arial; cursor:pointer; }
     button:hover { filter:brightness(1.1); }
     button.secondary { color:var(--text); background:#292929; }
@@ -59,6 +61,7 @@
     <section class="grid">
       <div class="card"><img class="focus-art" src="main-art.png" alt=""><h2>Основные настройки</h2>
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><div class="state-actions"><input id="timepicker" class="timepicker timepicker-input" type="text" value="-:-" placeholder="Время"><div id="enabled" class="focus-toggle" role="switch" tabindex="0" aria-checked="false"><span class="focus-toggle-knob"></span></div></div></div>
+        <a class="focus-link" href="block.html" target="_blank" rel="noopener noreferrer">Открыть страницу фокуса →</a>
         <input id="timerMinutes" type="hidden" value="30">
       </div>
       <div class="card blocked-sites-card"><div id="blockedHeader" class="card-header" role="button" tabindex="0"><h2>Заблокированные сайты</h2><button id="toggleBlocked" class="collapse-toggle" type="button" aria-expanded="true">></button></div><div id="blockedContent"><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div></div>
