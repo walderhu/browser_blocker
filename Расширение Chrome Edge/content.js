@@ -6,6 +6,7 @@
   let overlay = null;
   let originalTitle = null;
   let titleObserver = null;
+  const mediaStates = new Map();
 
   function lockTitle() {
     if (originalTitle === null) originalTitle = document.title;
@@ -30,9 +31,18 @@
 
   function stopMedia() {
     document.querySelectorAll("video, audio").forEach((media) => {
+      if (!mediaStates.has(media)) mediaStates.set(media, { muted: media.muted, paused: media.paused });
       media.pause();
       media.muted = true;
     });
+  }
+
+  function restoreMedia() {
+    for (const [media, state] of mediaStates) {
+      media.muted = state.muted;
+      if (!state.paused) media.play().catch(() => {});
+    }
+    mediaStates.clear();
   }
 
   function showOverlay() {
@@ -64,6 +74,7 @@
   }
 
   function hideOverlay() {
+    restoreMedia();
     overlay?.remove();
     overlay = null;
     titleObserver?.disconnect();
