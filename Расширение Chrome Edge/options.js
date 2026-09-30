@@ -89,7 +89,8 @@ function initTimepicker() {
 enabled.addEventListener("click", () => {
   const value = !isEnabled();
   showState(value);
-  saveProtectionMode(value);
+  const hasTimer = /^(\d{1,2}):(\d{2})$/.test(timepicker.value);
+  saveProtectionMode(value, value && hasTimer ? "timer" : "permanent");
 });
 
 enabled.addEventListener("keydown", (event) => {
