@@ -12,7 +12,7 @@ let timepickerInstance;
 
 function setBlockedSitesCollapsed(collapsed) {
   blockedSitesCard.classList.toggle("is-collapsed", collapsed);
-  toggleBlocked.textContent = collapsed ? "›" : "⌄";
+  toggleBlocked.textContent = ">";
   toggleBlocked.setAttribute("aria-expanded", String(!collapsed));
   localStorage.setItem("blockedSitesCollapsed", String(collapsed));
 }
