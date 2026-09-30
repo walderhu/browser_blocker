@@ -5,8 +5,22 @@ const state = document.getElementById("state");
 const status = document.getElementById("status");
 const timerMinutes = document.getElementById("timerMinutes");
 const timepicker = document.getElementById("timepicker");
+const blockedSitesCard = document.querySelector(".blocked-sites-card");
+const toggleBlocked = document.getElementById("toggleBlocked");
 let toastTimer;
 let timepickerInstance;
+
+function setBlockedSitesCollapsed(collapsed) {
+  blockedSitesCard.classList.toggle("is-collapsed", collapsed);
+  toggleBlocked.textContent = collapsed ? "›" : "⌄";
+  toggleBlocked.setAttribute("aria-expanded", String(!collapsed));
+  localStorage.setItem("blockedSitesCollapsed", String(collapsed));
+}
+
+setBlockedSitesCollapsed(localStorage.getItem("blockedSitesCollapsed") === "true");
+toggleBlocked.addEventListener("click", () => {
+  setBlockedSitesCollapsed(!blockedSitesCard.classList.contains("is-collapsed"));
+});
 
 function showToast(text) {
   status.textContent = text;
