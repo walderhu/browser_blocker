@@ -54,6 +54,9 @@
     .custom-calendar { height:490px; color:var(--cal-text); }
     .custom-calendar-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
     .custom-calendar-title { font:600 16px Consolas,"Courier New",monospace; }
+    .calendar-actions { display:flex; gap:7px; }
+    .calendar-login-button { padding:7px 9px; border:1px solid #777; border-radius:6px; color:var(--cal-text); background:transparent; font:600 12px "Segoe UI",Arial,sans-serif; cursor:pointer; }
+    .calendar-login-button:hover { border-color:#45c985; color:#45c985; }
     .add-event-button { padding:7px 11px; border:1px solid #45c985; border-radius:6px; color:#45c985; background:transparent; font:600 13px "Segoe UI",Arial,sans-serif; cursor:pointer; }
     .add-event-button:hover { color:#111; background:#45c985; }
     .calendar-days { display:grid; grid-template-columns:1fr 1fr; gap:10px; height:calc(100% - 42px); }
@@ -112,7 +115,7 @@
   <section class="calendar-panel" aria-label="Мой календарь">
     <button id="calendar-theme" class="calendar-theme-button" type="button" aria-label="Переключить тему календаря">☀</button>
     <div class="custom-calendar">
-      <div class="custom-calendar-top"><span class="custom-calendar-title">Мой календарь</span><button id="add-event" class="add-event-button" type="button">+ Событие</button></div>
+      <div class="custom-calendar-top"><span class="custom-calendar-title">Мой календарь</span><div class="calendar-actions"><button id="google-login" class="calendar-login-button" type="button">Войти Google</button><button id="add-event" class="add-event-button" type="button">+ Событие</button></div></div>
       <div id="calendar-days" class="calendar-days"></div>
     </div>
   </section>

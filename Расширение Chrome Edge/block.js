@@ -18,6 +18,10 @@ const eventTitle = document.getElementById("event-title");
 const eventDate = document.getElementById("event-date");
 const eventTime = document.getElementById("event-time");
 const cancelEvent = document.getElementById("cancel-event");
+const googleLogin = document.getElementById("google-login");
+const GOOGLE_CLIENT_ID = "205794802854-d4204vbt7jj6pfgcbbi1ca3om1ojm3o8.apps.googleusercontent.com";
+const GOOGLE_SCOPE = "https://www.googleapis.com/auth/calendar";
+const GOOGLE_CALENDARS = ["tru60117@gmail.com", "o9h6dglqoqrdrocjvh81m53490@group.calendar.google.com"];
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
@@ -64,21 +68,76 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[character]));
 }
 
-function renderCalendar() {
+async function getGoogleToken(interactive = false) {
+  const stored = await chrome.storage.local.get({ googleAccessToken: "", googleTokenExpiresAt: 0 });
+  if (stored.googleAccessToken && stored.googleTokenExpiresAt > Date.now() + 60000) return stored.googleAccessToken;
+  if (!interactive) return null;
+  const redirectUri = chrome.identity.getRedirectURL("calendar");
+  const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.search = new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, response_type: "token", redirect_uri: redirectUri, scope: GOOGLE_SCOPE, prompt: "consent" });
+  const redirected = await chrome.identity.launchWebAuthFlow({ url: authUrl.toString(), interactive: true });
+  const hash = new URL(redirected).hash.slice(1);
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get("access_token");
+  if (!accessToken) throw new Error("Google authorization was cancelled");
+  const expiresIn = Number(params.get("expires_in")) || 3600;
+  await chrome.storage.local.set({ googleAccessToken: accessToken, googleTokenExpiresAt: Date.now() + expiresIn * 1000 });
+  return accessToken;
+}
+
+async function googleRequest(url, options = {}, interactive = false) {
+  const token = await getGoogleToken(interactive);
+  if (!token) return null;
+  const response = await fetch(url, { ...options, headers: { ...(options.headers || {}), Authorization: `Bearer ${token}`, "Content-Type": "application/json" } });
+  if (response.status === 401) {
+    await chrome.storage.local.remove(["googleAccessToken", "googleTokenExpiresAt"]);
+    return null;
+  }
+  if (!response.ok) throw new Error(`Google Calendar API: ${response.status}`);
+  return response.status === 204 ? null : response.json();
+}
+
+async function loadGoogleEvents() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(today);
+  end.setDate(end.getDate() + 2);
+  const query = new URLSearchParams({ timeMin: today.toISOString(), timeMax: end.toISOString(), singleEvents: "true", orderBy: "startTime", maxResults: "100" });
+  const events = [];
+  for (const calendarId of GOOGLE_CALENDARS) {
+    const data = await googleRequest(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${query}`);
+    if (!data) return null;
+    for (const event of data.items || []) {
+      const start = event.start?.dateTime ? new Date(event.start.dateTime) : null;
+      events.push({ id: event.id, calendarId, title: event.summary || "Без названия", date: start ? dateKey(start) : event.start?.date, time: start ? start.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "Весь день", google: true });
+    }
+  }
+  return events;
+}
+
+function drawCalendar(events) {
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const days = [today, tomorrow];
-  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
-    calendarDays.innerHTML = days.map((day, index) => {
+  calendarDays.innerHTML = days.map((day, index) => {
       const key = dateKey(day);
-      const events = focusEvents.filter(event => event.date === key).sort((a, b) => a.time.localeCompare(b.time));
+      const dayEvents = events.filter(event => event.date === key).sort((a, b) => a.time.localeCompare(b.time));
       const label = index === 0 ? "Сегодня" : "Завтра";
       const dateLabel = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(day);
-      const content = events.length ? events.map(event => `<div class="calendar-event"><div><time>${escapeHtml(event.time)}</time><strong>${escapeHtml(event.title)}</strong></div><button class="delete-event" type="button" data-delete-event="${escapeHtml(event.id)}" aria-label="Удалить событие">×</button></div>`).join("") : '<div class="empty-day">Нет событий</div>';
+      const content = dayEvents.length ? dayEvents.map(event => `<div class="calendar-event"><div><time>${escapeHtml(event.time)}</time><strong>${escapeHtml(event.title)}</strong></div><button class="delete-event" type="button" data-delete-event="${escapeHtml(event.id)}" data-delete-calendar="${escapeHtml(event.calendarId || "")}" data-google-event="${event.google ? "1" : "0"}" aria-label="Удалить событие">×</button></div>`).join("") : '<div class="empty-day">Нет событий</div>';
       return `<div class="calendar-day"><div class="day-header">${label}<small>${dateLabel}</small></div><div class="day-events">${content}</div></div>`;
     }).join("");
-  });
+}
+
+async function renderCalendar() {
+  const googleEvents = await loadGoogleEvents().catch(() => null);
+  if (googleEvents) {
+    drawCalendar(googleEvents);
+    googleLogin.textContent = "Google подключён";
+    return;
+  }
+  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => drawCalendar(focusEvents));
 }
 
 function openEventDialog() {
@@ -91,20 +150,40 @@ function openEventDialog() {
 }
 
 addEventButton?.addEventListener("click", openEventDialog);
-cancelEvent?.addEventListener("click", () => eventDialog.close());
-eventForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
-    focusEvents.push({ id: crypto.randomUUID(), title: eventTitle.value.trim(), date: eventDate.value, time: eventTime.value });
-    chrome.storage.local.set({ focusEvents }, () => { eventDialog.close(); renderCalendar(); });
-  });
+googleLogin?.addEventListener("click", async () => {
+  try {
+    await getGoogleToken(true);
+    await renderCalendar();
+  } catch (error) {
+    googleLogin.textContent = "Войти Google";
+  }
 });
-calendarDays?.addEventListener("click", (event) => {
+cancelEvent?.addEventListener("click", () => eventDialog.close());
+eventForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const googleToken = await getGoogleToken(false);
+  if (googleToken) {
+    const start = new Date(`${eventDate.value}T${eventTime.value}:00`);
+    const end = new Date(start.getTime() + 60 * 60000);
+    await googleRequest(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GOOGLE_CALENDARS[0])}/events`, { method: "POST", body: JSON.stringify({ summary: eventTitle.value.trim(), start: { dateTime: start.toISOString(), timeZone: "Europe/Moscow" }, end: { dateTime: end.toISOString(), timeZone: "Europe/Moscow" } }) });
+  } else {
+    const { focusEvents } = await chrome.storage.local.get({ focusEvents: [] });
+    focusEvents.push({ id: crypto.randomUUID(), title: eventTitle.value.trim(), date: eventDate.value, time: eventTime.value });
+    await chrome.storage.local.set({ focusEvents });
+  }
+  eventDialog.close();
+  renderCalendar();
+});
+calendarDays?.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-delete-event]");
   if (!button) return;
-  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
-    chrome.storage.local.set({ focusEvents: focusEvents.filter(item => item.id !== button.dataset.deleteEvent) }, renderCalendar);
-  });
+  if (button.dataset.googleEvent === "1") {
+    await googleRequest(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(button.dataset.deleteCalendar)}/events/${encodeURIComponent(button.dataset.deleteEvent)}`, { method: "DELETE" });
+  } else {
+    const { focusEvents } = await chrome.storage.local.get({ focusEvents: [] });
+    await chrome.storage.local.set({ focusEvents: focusEvents.filter(item => item.id !== button.dataset.deleteEvent) });
+  }
+  renderCalendar();
 });
 renderCalendar();
 
