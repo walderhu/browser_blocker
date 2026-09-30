@@ -1,6 +1,6 @@
 const countdown = document.getElementById("countdown");
 const progressRing = document.getElementById("timer-ring-progress");
-const ringLength = 2 * Math.PI * 106;
+const ringLength = 2 * Math.PI * 104;
 let timer;
 
 progressRing.style.strokeDasharray = ringLength;
