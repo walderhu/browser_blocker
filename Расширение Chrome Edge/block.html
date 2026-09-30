@@ -40,18 +40,39 @@
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
     .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
     .music-button .pause-icon { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
-    .calendar-panel { overflow: hidden; }
+    .calendar-panel { --cal-bg:#151515; --cal-panel:#202020; --cal-line:#444; --cal-text:#eee; --cal-muted:#999; position:relative; overflow:hidden; padding:16px; background:var(--cal-bg); }
+    .calendar-panel.is-light { --cal-bg:#f2f2f2; --cal-panel:#fff; --cal-line:#d2d2d2; --cal-text:#222; --cal-muted:#777; }
     .calendar-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid #444; color: #aaa; font: 600 14px Consolas,"Courier New",monospace; }
     .calendar-heading a { color: #45c985; text-decoration: none; }
     .calendar-heading a:hover { text-decoration: underline; }
-    .calendar-frame { display: block; width: 100%; height: 520px; border: 0; background: #151515; filter: invert(.92) hue-rotate(180deg); }
-    .calendar-frame.is-light { filter: none; }
+    .custom-calendar { height:490px; color:var(--cal-text); }
+    .custom-calendar-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .custom-calendar-title { font:600 16px Consolas,"Courier New",monospace; }
+    .add-event-button { padding:7px 11px; border:1px solid #45c985; border-radius:6px; color:#45c985; background:transparent; font:600 13px "Segoe UI",Arial,sans-serif; cursor:pointer; }
+    .add-event-button:hover { color:#111; background:#45c985; }
+    .calendar-days { display:grid; grid-template-columns:1fr 1fr; gap:10px; height:calc(100% - 42px); }
+    .calendar-day { min-width:0; overflow:hidden; border:1px solid var(--cal-line); border-radius:8px; background:var(--cal-panel); }
+    .day-header { padding:10px 12px; border-bottom:1px solid var(--cal-line); font:600 14px Consolas,"Courier New",monospace; }
+    .day-header small { display:block; margin-top:3px; color:var(--cal-muted); font:12px "Segoe UI",Arial,sans-serif; }
+    .day-events { height:calc(100% - 56px); overflow:auto; padding:8px; }
+    .empty-day { padding:20px 8px; color:var(--cal-muted); text-align:center; font-size:13px; }
+    .calendar-event { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:7px; padding:8px 9px; border-left:3px solid #45c985; border-radius:5px; background:#45c9851c; }
+    .calendar-event strong { display:block; font-size:13px; }
+    .calendar-event time { display:block; margin-bottom:3px; color:var(--cal-muted); font:12px Consolas,"Courier New",monospace; }
+    .delete-event { border:0; padding:0; color:var(--cal-muted); background:transparent; font-size:16px; cursor:pointer; }
+    .delete-event:hover { color:#e66; }
+    .event-dialog { width:min(360px,calc(100vw - 32px)); padding:20px; border:1px solid #555; border-radius:9px; color:#eee; background:#202020; box-shadow:0 20px 60px #000b; }
+    .event-dialog::backdrop { background:#0009; }
+    .event-dialog h3 { margin:0 0 14px; font:600 18px Consolas,"Courier New",monospace; }
+    .event-dialog label { display:block; margin:10px 0 5px; color:#aaa; font-size:13px; }
+    .event-dialog input { width:100%; padding:9px; border:1px solid #555; border-radius:5px; outline:0; color:#eee; background:#111; }
+    .event-dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
     .calendar-theme-button { position: fixed; z-index: 5; top: 16px; right: 20px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; color: #ddd; background: transparent; cursor: pointer; }
     .calendar-theme-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
     .calendar-theme-button svg.moon-icon { fill: currentColor; stroke: none; }
     .calendar-theme-button:hover { color: #45c985; transform: scale(1.08); }
     @media (max-width: 980px) { body { flex-direction: column; } main, .calendar-panel { width: min(860px, calc(100vw - 48px)); } main { height: auto; flex-basis: auto; } .calendar-panel { height: auto; } .music-card { position:static; margin:12px auto 0; } }
-    @media (max-width: 640px) { main { padding: 28px 20px; } .icon { width: 170px; height: 170px; } h1 { font-size: 28px; } .calendar-frame { height: 360px; } }
+    @media (max-width: 640px) { main { padding: 28px 20px; } .icon { width: 170px; height: 170px; } h1 { font-size: 28px; } .calendar-days { gap:6px; } .day-header { padding:8px; font-size:12px; } .day-events { padding:5px; } }
   </style>
 </head>
 <body>
@@ -83,8 +104,20 @@
   </main>
   <section class="calendar-panel" aria-label="Мой календарь">
     <button id="calendar-theme" class="calendar-theme-button" type="button" aria-label="Переключить тему календаря">☀</button>
-    <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?src=tru60117%40gmail.com&color=%234285f4&src=o9h6dglqoqrdrocjvh81m53490%40group.calendar.google.com&color=%23d50000&ctz=Europe%2FMoscow&mode=WEEK&bgcolor=%23151515&hl=ru&showCalendars=1&showTabs=0&showTz=0" title="Мои календари" loading="lazy"></iframe>
+    <div class="custom-calendar">
+      <div class="custom-calendar-top"><span class="custom-calendar-title">Мой календарь</span><button id="add-event" class="add-event-button" type="button">+ Событие</button></div>
+      <div id="calendar-days" class="calendar-days"></div>
+    </div>
   </section>
+  <dialog id="event-dialog" class="event-dialog">
+    <form id="event-form" method="dialog">
+      <h3>Новое событие</h3>
+      <label for="event-title">Название</label><input id="event-title" required maxlength="80" autocomplete="off">
+      <label for="event-date">Дата</label><input id="event-date" type="date" required>
+      <label for="event-time">Время</label><input id="event-time" type="time" required>
+      <div class="event-dialog-actions"><button id="cancel-event" class="add-event-button" type="button">Отмена</button><button class="add-event-button" type="submit">Сохранить</button></div>
+    </form>
+  </dialog>
   <script src="block.js"></script>
 </body>
 </html>

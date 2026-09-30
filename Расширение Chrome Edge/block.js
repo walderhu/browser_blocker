@@ -6,8 +6,16 @@ const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
 const progressRing = document.getElementById("timer-ring-progress");
-const calendarFrame = document.querySelector(".calendar-frame");
+const calendarPanel = document.querySelector(".calendar-panel");
 const calendarThemeButton = document.getElementById("calendar-theme");
+const calendarDays = document.getElementById("calendar-days");
+const addEventButton = document.getElementById("add-event");
+const eventDialog = document.getElementById("event-dialog");
+const eventForm = document.getElementById("event-form");
+const eventTitle = document.getElementById("event-title");
+const eventDate = document.getElementById("event-date");
+const eventTime = document.getElementById("event-time");
+const cancelEvent = document.getElementById("cancel-event");
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
@@ -18,13 +26,9 @@ trackCover.addEventListener("error", () => {
   trackCover.style.display = "none";
 });
 
-const darkCalendarUrl = calendarFrame?.src || "";
-const lightCalendarUrl = darkCalendarUrl.replace("bgcolor=%23151515", "bgcolor=%23ffffff");
-
 function setCalendarTheme(isLight) {
-  if (!calendarFrame || !calendarThemeButton) return;
-  calendarFrame.src = isLight ? lightCalendarUrl : darkCalendarUrl;
-  calendarFrame.classList.toggle("is-light", isLight);
+  if (!calendarPanel || !calendarThemeButton) return;
+  calendarPanel.classList.toggle("is-light", isLight);
   calendarThemeButton.innerHTML = isLight
     ? '<svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15.2A9 9 0 1 1 8.8 3.3 6.8 6.8 0 0 0 21 15.2Z"/></svg>'
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
@@ -33,7 +37,59 @@ function setCalendarTheme(isLight) {
 }
 
 setCalendarTheme(localStorage.getItem("calendarTheme") === "light");
-calendarThemeButton?.addEventListener("click", () => setCalendarTheme(!calendarFrame.classList.contains("is-light")));
+calendarThemeButton?.addEventListener("click", () => setCalendarTheme(!calendarPanel.classList.contains("is-light")));
+
+function dateKey(date) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[character]));
+}
+
+function renderCalendar() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const days = [today, tomorrow];
+  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
+    calendarDays.innerHTML = days.map((day, index) => {
+      const key = dateKey(day);
+      const events = focusEvents.filter(event => event.date === key).sort((a, b) => a.time.localeCompare(b.time));
+      const label = index === 0 ? "Сегодня" : "Завтра";
+      const dateLabel = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(day);
+      const content = events.length ? events.map(event => `<div class="calendar-event"><div><time>${escapeHtml(event.time)}</time><strong>${escapeHtml(event.title)}</strong></div><button class="delete-event" type="button" data-delete-event="${escapeHtml(event.id)}" aria-label="Удалить событие">×</button></div>`).join("") : '<div class="empty-day">Нет событий</div>';
+      return `<div class="calendar-day"><div class="day-header">${label}<small>${dateLabel}</small></div><div class="day-events">${content}</div></div>`;
+    }).join("");
+  });
+}
+
+function openEventDialog() {
+  const now = new Date();
+  eventTitle.value = "";
+  eventDate.value = dateKey(now);
+  eventTime.value = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  eventDialog.showModal();
+  eventTitle.focus();
+}
+
+addEventButton?.addEventListener("click", openEventDialog);
+cancelEvent?.addEventListener("click", () => eventDialog.close());
+eventForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
+    focusEvents.push({ id: crypto.randomUUID(), title: eventTitle.value.trim(), date: eventDate.value, time: eventTime.value });
+    chrome.storage.local.set({ focusEvents }, () => { eventDialog.close(); renderCalendar(); });
+  });
+});
+calendarDays?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-delete-event]");
+  if (!button) return;
+  chrome.storage.local.get({ focusEvents: [] }, ({ focusEvents }) => {
+    chrome.storage.local.set({ focusEvents: focusEvents.filter(item => item.id !== button.dataset.deleteEvent) }, renderCalendar);
+  });
+});
+renderCalendar();
 
 document.querySelectorAll("[data-music-action]").forEach((button) => {
   button.addEventListener("click", () => {
