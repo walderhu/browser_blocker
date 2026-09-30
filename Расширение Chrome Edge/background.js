@@ -13,10 +13,15 @@ async function enforceOnOpenTabs() {
   if (!settings.enabled) return;
   const tabs = await chrome.tabs.query({});
   for (const tab of tabs) {
-    if (!tab.id || !tab.url || !isBlocked(tab.url, settings.hosts)) continue;
-    const target = chrome.runtime.getURL("block.html") + "?site=" + encodeURIComponent(tab.url);
-    await chrome.tabs.update(tab.id, { muted: true, url: target });
+    await enforceTab(tab, settings);
   }
+}
+
+async function enforceTab(tab, settings = null) {
+  const current = settings || await getSettings();
+  if (!current.enabled || !tab?.id || !tab.url || !isBlocked(tab.url, current.hosts)) return;
+  const target = chrome.runtime.getURL("block.html") + "?site=" + encodeURIComponent(tab.url);
+  await chrome.tabs.update(tab.id, { muted: true, url: target });
 }
 
 function isBlocked(url, hosts) {
@@ -51,4 +56,14 @@ chrome.runtime.onInstalled.addListener(async () => {
 // сразу заменяем такую вкладку страницей блокировки и выключаем звук.
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.enabled?.newValue === true) enforceOnOpenTabs();
+});
+
+// Дополнительная проверка для вкладок, открытых до включения защиты.
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  const tab = await chrome.tabs.get(tabId);
+  await enforceTab(tab);
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.url || changeInfo.status === "complete") await enforceTab(tab);
 });
