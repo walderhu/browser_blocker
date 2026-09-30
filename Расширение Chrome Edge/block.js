@@ -1,13 +1,22 @@
 const countdown = document.getElementById("countdown");
 const progressRing = document.getElementById("timer-ring-progress");
 const ringLength = 2 * Math.PI * 95;
+const blockedUrl = new URLSearchParams(location.search).get("site");
+const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
+let restored = false;
 
 progressRing.style.strokeDasharray = ringLength;
 
 function setRingProgress(progress) {
   const boundedProgress = Math.max(0, Math.min(1, progress));
   progressRing.style.strokeDashoffset = ringLength * (1 - boundedProgress);
+}
+
+function restoreBlockedPage() {
+  if (restored || isOverlay || !blockedUrl || !/^https?:$/i.test(new URL(blockedUrl).protocol)) return;
+  restored = true;
+  location.replace(blockedUrl);
 }
 
 function formatRemaining(milliseconds) {
@@ -31,6 +40,7 @@ function updateCountdown() {
 
     if (!settings.enabled || settings.mode !== "timer" || !settings.timerEndsAt) {
       countdown.textContent = "";
+      if (!settings.enabled) restoreBlockedPage();
       return;
     }
     const remaining = settings.timerEndsAt - Date.now();
@@ -45,6 +55,7 @@ function updateCountdown() {
     if (remaining <= 0) {
       document.documentElement.style.overflow = "auto";
       document.body.style.overflow = "auto";
+      if (!settings.enabled) restoreBlockedPage();
     }
   });
 }
