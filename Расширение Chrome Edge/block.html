@@ -22,7 +22,8 @@
     .timer-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
-    .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
+    .timer-ring-progress { stroke: #45c985; stroke-linecap: round; opacity:0; transition:stroke-dashoffset .8s linear, opacity .2s; }
+    .icon-wrap.focus-active .timer-ring-progress { opacity:1; }
     .icon-wrap #countdown { position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:0; margin:0; padding:12px; box-sizing:border-box; color:#fff; font-family:Consolas,"Courier New",monospace; text-align:center; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; pointer-events:none; }
     .timer-total { visibility:hidden; color:#ddd; font-size:18px; }
     .timer-label { color:#45c985; font-size:17px; text-transform:uppercase; letter-spacing:1px; }

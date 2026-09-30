@@ -20,21 +20,7 @@ async function sendMediaPlayPause(tabId) {
 }
 
 chrome.action.onClicked.addListener(async () => {
-  const settings = await getSettings();
-  if (!settings.enabled) {
-    chrome.runtime.openOptionsPage();
-    return;
-  }
-
-  const focusUrl = chrome.runtime.getURL("block.html");
-  const tabs = await chrome.tabs.query({});
-  const existing = tabs.find(tab => tab.url?.startsWith(focusUrl));
-  if (existing?.id) {
-    await chrome.tabs.update(existing.id, { active: true });
-    if (existing.windowId !== undefined) await chrome.windows.update(existing.windowId, { focused: true });
-  } else {
-    await chrome.tabs.create({ url: focusUrl, active: true });
-  }
+  await chrome.runtime.openOptionsPage();
 });
 
 async function getSettings() {

@@ -354,6 +354,7 @@ function formatRemaining(milliseconds) {
 
 function updateCountdown() {
   chrome.storage.sync.get({ enabled: true, mode: "permanent", timerEndsAt: 0 }, (settings) => {
+    iconWrap.classList.toggle("focus-active", Boolean(settings.enabled));
     if (settings.mode !== "timer" || !settings.timerEndsAt) {
       setRingProgress(1);
     }
