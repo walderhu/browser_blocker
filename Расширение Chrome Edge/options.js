@@ -10,6 +10,7 @@ const toggleBlocked = document.getElementById("toggleBlocked");
 const blockedHeader = document.getElementById("blockedHeader");
 let toastTimer;
 let timepickerInstance;
+let countdownTimer;
 
 function setBlockedSitesCollapsed(collapsed) {
   blockedSitesCard.classList.toggle("is-collapsed", collapsed);
@@ -48,12 +49,13 @@ function isEnabled() {
 }
 
 function load() {
-  chrome.storage.sync.get({ enabled: true, hosts: defaults, mode: "permanent", timerMinutes: 30 }, (settings) => {
+  chrome.storage.sync.get({ enabled: true, hosts: defaults, mode: "permanent", timerMinutes: 30, timerEndsAt: 0 }, (settings) => {
     showState(settings.enabled);
     hosts.value = settings.hosts.join("\n");
     timerMinutes.value = settings.timerMinutes;
     renderTimepicker();
     initTimepicker();
+    updateTimerDisplay(settings);
   });
 }
 
@@ -62,6 +64,49 @@ function renderTimepicker() {
   const hours = Math.floor(total / 60);
   const minutes = total % 60;
   timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
+}
+
+function formatRemaining(milliseconds) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds].map(value => String(value).padStart(2, "0")).join(":");
+}
+
+function stopCountdown() {
+  clearInterval(countdownTimer);
+  countdownTimer = undefined;
+  timepicker.readOnly = false;
+  timepicker.classList.remove("is-countdown");
+}
+
+function startCountdown(endsAt) {
+  stopCountdown();
+  timepicker.readOnly = true;
+  timepicker.classList.add("is-countdown");
+
+  const update = () => {
+    const remaining = Number(endsAt) - Date.now();
+    if (remaining <= 0) {
+      stopCountdown();
+      renderTimepicker();
+      return;
+    }
+    timepicker.value = formatRemaining(remaining);
+  };
+
+  update();
+  countdownTimer = setInterval(update, 1000);
+}
+
+function updateTimerDisplay(settings) {
+  if (settings.enabled && settings.mode === "timer" && Number(settings.timerEndsAt) > Date.now()) {
+    startCountdown(settings.timerEndsAt);
+  } else {
+    stopCountdown();
+    renderTimepicker();
+  }
 }
 
 function saveProtectionMode(enabledValue = isEnabled(), modeValue = "permanent") {
@@ -105,6 +150,14 @@ timepicker.addEventListener("change", () => {
   timerMinutes.value = Number(match[1]) * 60 + Number(match[2]);
   showState(true);
   saveProtectionMode(true, "timer");
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "sync" || (!changes.enabled && !changes.mode && !changes.timerEndsAt)) return;
+  chrome.storage.sync.get({ enabled: true, mode: "permanent", timerEndsAt: 0 }, (settings) => {
+    showState(settings.enabled);
+    updateTimerDisplay(settings);
+  });
 });
 
 document.getElementById("save").addEventListener("click", () => {
