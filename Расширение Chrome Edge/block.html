@@ -18,6 +18,8 @@
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
     .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
+    .icon-wrap #countdown { position:absolute; z-index:2; inset:0; display:grid; place-items:center; min-height:0; margin:0; padding:12px; box-sizing:border-box; color:#fff; font:600 16px Consolas,"Courier New",monospace; text-align:center; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; pointer-events:none; }
+    .icon-wrap:hover #countdown { opacity:1; }
     .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
     .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
     .settings-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -60,9 +62,9 @@
         <circle class="timer-ring-track" cx="110" cy="110" r="95"></circle>
         <circle id="timer-ring-progress" class="timer-ring-progress" cx="110" cy="110" r="95"></circle>
       </svg>
+      <div id="countdown"></div>
     </div>
     <h1>Доступ ограничен</h1>
-    <div id="countdown"></div>
     <div class="music-card">
       <img id="track-cover" class="track-cover" alt="Обложка текущего трека">
       <div class="music-info">
