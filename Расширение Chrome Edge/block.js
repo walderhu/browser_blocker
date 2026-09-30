@@ -1,4 +1,7 @@
 const countdown = document.getElementById("countdown");
+const timerTotal = countdown.querySelector(".timer-total");
+const timerLabel = countdown.querySelector(".timer-label");
+const timerRemaining = countdown.querySelector(".timer-remaining");
 const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
@@ -91,7 +94,9 @@ function updateCountdown() {
     document.body.style.overflow = isBlocked ? "hidden" : "auto";
 
     if (!settings.enabled || settings.mode !== "timer" || !settings.timerEndsAt) {
-      countdown.textContent = "";
+      timerTotal.textContent = "";
+      timerLabel.textContent = "";
+      timerRemaining.textContent = "";
       if (!settings.enabled) restoreBlockedPage();
       return;
     }
@@ -99,11 +104,13 @@ function updateCountdown() {
     chrome.storage.sync.get({ timerMinutes: 30 }, (timerSettings) => {
       const totalMilliseconds = Math.max(1, Number(timerSettings.timerMinutes) || 30) * 60000;
       const startedAt = settings.timerEndsAt - totalMilliseconds;
+      timerTotal.textContent = formatRemaining(totalMilliseconds);
+      timerLabel.textContent = "Осталось";
+      timerRemaining.textContent = formatRemaining(Math.max(0, remaining));
       setRingProgress((Date.now() - startedAt) / totalMilliseconds < 1
         ? remaining / totalMilliseconds
         : 0);
     });
-    countdown.textContent = remaining > 0 ? `Осталось: ${formatRemaining(remaining)}` : "Время вышло";
     if (remaining <= 0) {
       document.documentElement.style.overflow = "auto";
       document.body.style.overflow = "auto";

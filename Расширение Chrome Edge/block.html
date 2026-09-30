@@ -18,7 +18,10 @@
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
     .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
-    .icon-wrap #countdown { position:absolute; z-index:2; inset:0; display:grid; place-items:center; min-height:0; margin:0; padding:12px; box-sizing:border-box; color:#fff; font:600 16px Consolas,"Courier New",monospace; text-align:center; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; pointer-events:none; }
+    .icon-wrap #countdown { position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:0; margin:0; padding:12px; box-sizing:border-box; color:#fff; font-family:Consolas,"Courier New",monospace; text-align:center; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; pointer-events:none; }
+    .timer-total { color:#ddd; font-size:14px; }
+    .timer-label { color:#45c985; font-size:13px; text-transform:uppercase; letter-spacing:1px; }
+    .timer-remaining { font-size:18px; font-weight:700; }
     .icon-wrap:hover #countdown { opacity:1; }
     .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
     .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
@@ -62,7 +65,7 @@
         <circle class="timer-ring-track" cx="110" cy="110" r="95"></circle>
         <circle id="timer-ring-progress" class="timer-ring-progress" cx="110" cy="110" r="95"></circle>
       </svg>
-      <div id="countdown"></div>
+      <div id="countdown"><span class="timer-total"></span><span class="timer-label">Осталось</span><span class="timer-remaining"></span></div>
     </div>
     <h1>Доступ ограничен</h1>
     <div class="music-card">
