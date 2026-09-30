@@ -12,7 +12,7 @@ function formatRemaining(milliseconds) {
 function updateCountdown() {
   chrome.storage.sync.get({ enabled: true, mode: "permanent", timerEndsAt: 0 }, (settings) => {
     if (!settings.enabled || settings.mode !== "timer" || !settings.timerEndsAt) {
-      countdown.textContent = "Защита включена";
+      countdown.textContent = "";
       return;
     }
     const remaining = settings.timerEndsAt - Date.now();
