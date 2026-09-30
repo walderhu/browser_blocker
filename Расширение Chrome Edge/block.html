@@ -37,13 +37,20 @@
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
     .music-controls { display: flex; justify-content: center; gap: 10px; margin-top: 4px; }
     .music-card { position:absolute; left:24px; right:24px; bottom:24px; display:flex; align-items:center; gap:10px; margin:0; padding:6px; border:1px solid #454545; border-radius:9px; background:#171717aa; text-align:left; }
-    .track-cover { display:none; flex:0 0 68px; width:68px; height:68px; margin-left:4px; object-fit:cover; border-radius:6px; background:#292929; transition:filter .25s ease; }
-    .track-cover:hover { filter:blur(4px); }
+    .track-cover-button { position:relative; display:none; flex:0 0 68px; width:68px; height:68px; margin-left:4px; padding:0; border:0; border-radius:6px; overflow:hidden; color:#fff; background:#292929; cursor:pointer; }
+    .track-cover { display:block; width:100%; height:100%; object-fit:cover; transition:filter .2s ease; }
+    .track-cover-button::after { content:""; position:absolute; inset:0; background:#0005; opacity:0; transition:opacity .2s; }
+    .track-cover-button:hover::after, .track-cover-button:focus-visible::after { opacity:1; }
+    .track-cover-button:focus, .track-cover-button:focus-visible { outline:none; box-shadow:none; }
+    .track-cover-eye { position:absolute; z-index:1; left:50%; top:50%; width:25px; height:25px; transform:translate(-50%, -50%); opacity:0; transition:opacity .2s; }
+    .track-cover-button:hover .track-cover { filter:blur(4px); }
+    .track-cover-button:hover .track-cover-eye, .track-cover-button:focus-visible .track-cover-eye { opacity:1; }
     .music-info { min-width:0; flex:1; text-align:center; }
     .track-title { max-width:none; min-height:22px; margin:0; overflow:hidden; color:#aaa; font:600 17px Consolas,"Courier New",monospace; text-overflow:ellipsis; white-space:nowrap; }
     .track-artist { max-width:none; margin-top:3px; overflow:hidden; color:#777; font:500 13px Consolas,"Courier New",monospace; text-overflow:ellipsis; white-space:nowrap; }
     .music-button { width: 52px; height: 36px; padding: 0; border: 0; border-radius: 0; color: #bbb; background: transparent !important; font-size: 29px; line-height: 1; cursor: pointer; transition: color .2s, transform .2s; }
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
+    .music-button:focus, .music-button:focus-visible { outline: none; box-shadow: none; }
     .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
     .music-button .previous-icon { transform: rotate(180deg); }
     .music-button .pause-icon { fill: currentColor; stroke: none; }
@@ -74,7 +81,7 @@
     </div>
     <h1>Доступ ограничен</h1>
     <div class="music-card">
-      <img id="track-cover" class="track-cover" alt="Обложка текущего трека">
+      <button id="music-open" class="track-cover-button" type="button" aria-label="Открыть Яндекс Музыку"><img id="track-cover" class="track-cover" alt=""><svg class="track-cover-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
       <div class="music-info">
         <div id="track-title" class="track-title"></div>
         <div id="track-artist" class="track-artist"></div>

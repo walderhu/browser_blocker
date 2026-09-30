@@ -7,6 +7,7 @@ const timerLock = document.getElementById("timer-lock");
 const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
+const musicOpen = document.getElementById("music-open");
 const pauseButton = document.querySelector('[data-music-action="pause"]');
 const progressRing = document.getElementById("timer-ring-progress");
 const calendarFrame = document.querySelector(".calendar-frame");
@@ -33,7 +34,11 @@ timerLock.addEventListener("click", (event) => {
 });
 
 trackCover.addEventListener("error", () => {
-  trackCover.style.display = "none";
+  if (trackCover.getAttribute("src")) musicOpen.style.display = "none";
+});
+
+musicOpen.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "openMusic" });
 });
 
 function setCalendarTheme(isLight) {
@@ -198,7 +203,7 @@ function updateTrackTitle() {
     if (chrome.runtime.lastError || !response?.title) {
       trackTitle.textContent = "";
       trackArtist.textContent = "";
-      trackCover.style.display = "none";
+      musicOpen.style.display = "none";
       return;
     }
     trackTitle.textContent = response.title;
@@ -206,7 +211,7 @@ function updateTrackTitle() {
     updatePauseButton(response.paused);
     if (response.cover) {
       trackCover.src = response.cover;
-      trackCover.style.display = "block";
+      musicOpen.style.display = "grid";
     }
   });
 }

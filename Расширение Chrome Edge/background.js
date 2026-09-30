@@ -3,6 +3,7 @@ const defaultHosts = [
   "youtu.be",
   "youtube-nocookie.com"
 ];
+let lastMusicTabId = null;
 
 chrome.action.onClicked.addListener(async () => {
   const settings = await getSettings();
@@ -114,10 +115,26 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true;
   }
 
+  if (message?.type === "openMusic") {
+    chrome.tabs.query({ url: ["https://music.yandex.ru/*", "https://music.yandex.com/*"] }).then(async (tabs) => {
+      const tab = tabs.find(candidate => candidate.id === lastMusicTabId)
+        || tabs.find(candidate => candidate.active)
+        || tabs[tabs.length - 1];
+      if (!tab?.id) return { ok: false };
+      await chrome.tabs.update(tab.id, { active: true });
+      if (tab.windowId !== undefined) await chrome.windows.update(tab.windowId, { focused: true });
+      lastMusicTabId = tab.id;
+      return { ok: true };
+    }).then(sendResponse).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
+
   if (message?.type !== "musicControl" && message?.type !== "musicInfo") return;
 
   chrome.tabs.query({ url: ["https://music.yandex.ru/*", "https://music.yandex.com/*"] }, async (tabs) => {
-    const tab = tabs[0];
+    const tab = tabs.find(candidate => candidate.id === lastMusicTabId)
+      || tabs.find(candidate => candidate.active)
+      || tabs[tabs.length - 1];
     if (!tab?.id) {
       sendResponse({ ok: false });
       return;
@@ -153,14 +170,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
-            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
-              || document.querySelector("audio");
-            if (audio) {
-              if (audio.paused) {
-                audio.play().catch(() => {});
-              } else {
-                audio.pause();
-              }
+            const playerButton = document.querySelector(
+              "button[aria-label*='Пауза'], button[aria-label*='Воспроизвести'], [role='button'][aria-label*='Пауза'], [role='button'][aria-label*='Воспроизвести'], .player-controls__btn_play"
+            );
+            if (playerButton) {
+              playerButton.click();
               return true;
             }
             const button = buttons.find(element => /пауз|play|pause|player-controls__btn_play/.test(labels(element)))
@@ -169,7 +183,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
               button.click();
               return true;
             }
-            return false;
+            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
+              || document.querySelector("audio");
+            if (!audio) return false;
+            audio.paused ? audio.play().catch(() => {}) : audio.pause();
+            return true;
           }
           const pattern = action === "next"
             ? /следующ|впер[её]д|next|btn_next|__next/
@@ -179,6 +197,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           return Boolean(button);
         }
       });
+      lastMusicTabId = tab.id;
       sendResponse(message.type === "musicInfo" ? (result[0]?.result || { ok: false }) : { ok: true });
     } catch (_) {
       sendResponse({ ok: false });
