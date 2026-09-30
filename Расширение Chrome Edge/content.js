@@ -4,6 +4,21 @@
 
   const defaultHosts = ["youtube.com", "youtu.be", "youtube-nocookie.com"];
   let overlay = null;
+  let originalTitle = null;
+  let titleObserver = null;
+
+  function lockTitle() {
+    if (originalTitle === null) originalTitle = document.title;
+    document.title = "Доступ ограничен";
+    const titleNode = document.querySelector("title") || document.head?.appendChild(document.createElement("title"));
+    titleObserver?.disconnect();
+    if (titleNode) {
+      titleObserver = new MutationObserver(() => {
+        if (overlay && document.title !== "Доступ ограничен") document.title = "Доступ ограничен";
+      });
+      titleObserver.observe(titleNode, { childList: true, characterData: true, subtree: true });
+    }
+  }
 
   function isBlocked(hosts) {
     const host = location.hostname.toLowerCase();
@@ -23,6 +38,7 @@
   function showOverlay() {
     if (overlay) return;
     stopMedia();
+    lockTitle();
     overlay = document.createElement("div");
     overlay.id = "focus-mode-overlay";
     Object.assign(overlay.style, {
@@ -50,6 +66,12 @@
   function hideOverlay() {
     overlay?.remove();
     overlay = null;
+    titleObserver?.disconnect();
+    titleObserver = null;
+    if (originalTitle !== null) {
+      document.title = originalTitle;
+      originalTitle = null;
+    }
   }
 
   function apply(settings) {
