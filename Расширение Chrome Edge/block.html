@@ -8,8 +8,8 @@
     :root { color-scheme: dark; }
     body { margin: 0; min-height: 100vh; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; font-family: Segoe UI, Arial, sans-serif; background: linear-gradient(#090909b8, #090909d9), url('loading-bg.png') center / cover fixed; color: #f0f0f0; }
     main, .calendar-panel { box-sizing: border-box; border: 1px solid #4a4a4a; border-radius: 8px; background: linear-gradient(145deg, #202020, #151515); box-shadow: 0 20px 60px #000b; }
-    main { width: 360px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
-    .calendar-panel { width: min(820px, calc(100vw - 420px)); }
+    main { width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
+    .calendar-panel { width: min(820px, calc(100vw - 420px)); height: 522px; }
     .icon { width: 220px; height: 220px; margin: 0 auto 18px; object-fit: contain; image-rendering: pixelated; border: 0; border-radius: 0; background: transparent; }
     h1 { margin: 0 0 14px; font: 700 36px Consolas, "Courier New", monospace; }
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
@@ -19,7 +19,7 @@
     .calendar-heading a { color: #45c985; text-decoration: none; }
     .calendar-heading a:hover { text-decoration: underline; }
     .calendar-frame { display: block; width: 100%; height: 520px; border: 0; background: #fff; }
-    @media (max-width: 980px) { body { flex-direction: column; } main, .calendar-panel { width: min(860px, calc(100vw - 48px)); } main { flex-basis: auto; } }
+    @media (max-width: 980px) { body { flex-direction: column; } main, .calendar-panel { width: min(860px, calc(100vw - 48px)); } main { height: auto; flex-basis: auto; } .calendar-panel { height: auto; } }
     @media (max-width: 640px) { main { padding: 28px 20px; } .icon { width: 170px; height: 170px; } h1 { font-size: 28px; } .calendar-frame { height: 360px; } }
   </style>
 </head>
