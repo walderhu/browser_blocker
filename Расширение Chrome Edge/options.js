@@ -3,7 +3,6 @@ const enabled = document.getElementById("enabled");
 const hosts = document.getElementById("hosts");
 const state = document.getElementById("state");
 const status = document.getElementById("status");
-const mode = document.getElementById("mode");
 const timerMinutes = document.getElementById("timerMinutes");
 const timepicker = document.getElementById("timepicker");
 let toastTimer;
@@ -25,7 +24,6 @@ function load() {
   chrome.storage.sync.get({ enabled: true, hosts: defaults, mode: "permanent", timerMinutes: 30 }, (settings) => {
     showState(settings.enabled);
     hosts.value = settings.hosts.join("\n");
-    mode.value = settings.mode;
     timerMinutes.value = settings.timerMinutes;
     renderTimepicker();
     initTimepicker();
@@ -39,10 +37,10 @@ function renderTimepicker() {
   timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
 }
 
-function saveProtectionMode(enabledValue = enabled.checked) {
+function saveProtectionMode(enabledValue = enabled.checked, modeValue = "permanent") {
   const minutes = Math.max(1, Math.min(1440, Number(timerMinutes.value) || 30));
   timerMinutes.value = minutes;
-  chrome.storage.sync.set({ enabled: enabledValue, mode: mode.value, timerMinutes: minutes, timerEndsAt: 0 }, () => showToast("Сохранено"));
+  chrome.storage.sync.set({ enabled: enabledValue, mode: modeValue, timerMinutes: minutes, timerEndsAt: 0 }, () => showToast("Сохранено"));
 }
 
 function initTimepicker() {
@@ -66,19 +64,13 @@ enabled.addEventListener("change", () => {
   saveProtectionMode(enabled.checked);
 });
 
-mode.addEventListener("change", () => saveProtectionMode());
-
 timepicker.addEventListener("change", () => {
   const match = timepicker.value.match(/^(\d{1,2}):(\d{2})$/);
   if (!match) return;
   timerMinutes.value = Number(match[1]) * 60 + Number(match[2]);
-  if (mode.value === "timer") {
-    enabled.checked = true;
-    showState(true);
-    saveProtectionMode(true);
-  } else {
-    saveProtectionMode(enabled.checked);
-  }
+  enabled.checked = true;
+  showState(true);
+  saveProtectionMode(true, "timer");
 });
 
 document.getElementById("save").addEventListener("click", () => {
