@@ -7,6 +7,7 @@ const timerMinutes = document.getElementById("timerMinutes");
 const timepicker = document.getElementById("timepicker");
 const blockedSitesCard = document.querySelector(".blocked-sites-card");
 const toggleBlocked = document.getElementById("toggleBlocked");
+const blockedHeader = document.getElementById("blockedHeader");
 let toastTimer;
 let timepickerInstance;
 
@@ -18,8 +19,15 @@ function setBlockedSitesCollapsed(collapsed) {
 }
 
 setBlockedSitesCollapsed(localStorage.getItem("blockedSitesCollapsed") === "true");
-toggleBlocked.addEventListener("click", () => {
+function toggleBlockedSection() {
   setBlockedSitesCollapsed(!blockedSitesCard.classList.contains("is-collapsed"));
+}
+
+blockedHeader.addEventListener("click", toggleBlockedSection);
+blockedHeader.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  toggleBlockedSection();
 });
 
 function showToast(text) {

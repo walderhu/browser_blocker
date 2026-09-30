@@ -17,7 +17,7 @@
     .card { padding:24px; border:1px solid var(--line); border-radius:8px; background:linear-gradient(145deg,#202020,#151515); box-shadow:0 18px 45px #0008; }
     .card h2 { margin:0 0 6px; font-size:19px; }
     .card p { margin:0 0 18px; color:var(--muted); }
-    .card-header { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; gap:16px; cursor:pointer; user-select:none; }
     .card-header h2 { margin:0; }
     .collapse-toggle { width:32px !important; min-width:32px !important; height:32px !important; min-height:32px !important; padding:0 !important; border:0 !important; border-radius:0 !important; color:#f0f0f0 !important; background:transparent !important; font:25px/28px Consolas,monospace !important; transform:rotate(90deg); transition:transform .2s; }
     .blocked-sites-card.is-collapsed .collapse-toggle { transform:rotate(0deg); }
@@ -60,7 +60,7 @@
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><div class="state-actions"><input id="timepicker" class="timepicker timepicker-input" type="text" value="00:30" placeholder="Время"><div id="enabled" class="focus-toggle" role="switch" tabindex="0" aria-checked="false"><span class="focus-toggle-knob"></span></div></div></div>
         <input id="timerMinutes" type="hidden" value="30">
       </div>
-      <div class="card blocked-sites-card"><div class="card-header"><h2>Заблокированные сайты</h2><button id="toggleBlocked" class="collapse-toggle" type="button" aria-expanded="true">⌄</button></div><div id="blockedContent"><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div></div>
+      <div class="card blocked-sites-card"><div id="blockedHeader" class="card-header" role="button" tabindex="0"><h2>Заблокированные сайты</h2><button id="toggleBlocked" class="collapse-toggle" type="button" aria-expanded="true">></button></div><div id="blockedContent"><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div></div>
     </section>
   </main>
   <script src="vendor/materialize.min.js"></script>
