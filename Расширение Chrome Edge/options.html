@@ -9,8 +9,6 @@
     * { box-sizing: border-box; }
     body { margin:0; min-height:100vh; font:15px/1.5 "Segoe UI", Arial, sans-serif; color:var(--text); background:radial-gradient(circle at 15% 0%, #303030 0, transparent 32%),var(--bg); }
     .shell { width:min(900px,calc(100% - 32px)); margin:0 auto; padding:46px 0 56px; }
-    .hero { display:block; }
-    .hero-head { display:flex; align-items:center; gap:18px; margin-bottom:22px; }
     .logo { width:76px; height:76px; object-fit:cover; image-rendering:pixelated; border:2px solid #6b6b6b; border-radius:8px; box-shadow:0 12px 30px #0008; background:#111; }
     h1 { margin:0; font-size:32px; letter-spacing:-.5px; font-family:Consolas,"Courier New",monospace; }
     .subtitle { margin:5px 0 0; color:var(--muted); }
@@ -43,7 +41,7 @@
 <body>
   <main class="shell">
     <section class="grid">
-      <div class="hero card"><header class="hero-head"><img class="logo" src="icon.png" alt=""><div><h1>Режим концентрации</h1></div></header><h2>Основные настройки</h2>
+      <div class="card"><h2>Основные настройки</h2>
         <div class="control"><div><strong>Защита включена</strong><small>Запрещённые сайты откроют страницу блокировки.</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><span id="badge">●</span></div>
       </div>
