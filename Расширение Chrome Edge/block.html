@@ -12,7 +12,7 @@
     main { position: relative; width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
     .calendar-panel { width: min(820px, calc(100vw - 420px)); height: 522px; }
     .icon-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 18px; }
-    .icon { display: block; width: 220px; height: 220px; object-fit: contain; image-rendering: pixelated; border: 0; border-radius: 0; background: transparent; }
+    .icon { display: block; width: 220px; height: 220px; background: url('block-art.png') center / contain no-repeat; image-rendering: pixelated; border: 0; border-radius: 0; }
     .timer-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
     .timer-ring-track, .timer-ring-progress { fill: none; stroke-width: 12; }
     .timer-ring-track { stroke: #111; opacity: .8; }
@@ -44,7 +44,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>
     </a>
     <div class="icon-wrap">
-      <img class="icon" src="block-art.png" alt="">
+      <div class="icon" role="img" aria-label="Иллюстрация режима концентрации"></div>
       <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
         <circle class="timer-ring-track" cx="110" cy="110" r="95"></circle>
         <circle id="timer-ring-progress" class="timer-ring-progress" cx="110" cy="110" r="95"></circle>
