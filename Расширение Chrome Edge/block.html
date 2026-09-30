@@ -45,6 +45,7 @@
     .music-button { width: 52px; height: 36px; padding: 0; border: 0; border-radius: 0; color: #bbb; background: transparent !important; font-size: 29px; line-height: 1; cursor: pointer; transition: color .2s, transform .2s; }
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
     .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
+    .music-button .previous-icon { transform: rotate(180deg); }
     .music-button .pause-icon { fill: currentColor; stroke: none; }
     .calendar-panel { position:relative; overflow:hidden; }
     .calendar-frame { display:block; width:100%; height:520px; border:0; background:#151515; filter:invert(.92) hue-rotate(180deg); }
@@ -78,7 +79,7 @@
         <div id="track-title" class="track-title"></div>
         <div id="track-artist" class="track-artist"></div>
         <div class="music-controls" aria-label="Управление Яндекс Музыкой">
-          <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M18 5l-10 7 10 7V5Z"/></svg></button>
+          <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg class="previous-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 10 7-10 7V5ZM19 5v14h-2V5h2Z"/></svg></button>
           <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
           <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 10 7-10 7V5ZM19 5v14h-2V5h2Z"/></svg></button>
         </div>
