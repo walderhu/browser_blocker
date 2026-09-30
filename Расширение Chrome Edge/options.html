@@ -21,6 +21,10 @@
     .control:last-child { border-bottom:0; }
     .control strong { display:block; font-size:16px; }
     .control small { color:var(--muted); }
+    .timer-settings { display:flex; align-items:center; gap:10px; padding:16px 0 4px; }
+    .timer-settings label { color:var(--muted); }
+    select, input[type="number"] { padding:9px 10px; border:1px solid #666; border-radius:5px; color:var(--text); background:#292929; font:14px "Segoe UI",Arial; }
+    input[type="number"] { width:90px; }
     .switch { position:relative; width:52px; height:29px; flex:0 0 auto; }
     .switch input { opacity:0; width:0; height:0; }
     .slider { position:absolute; inset:0; border-radius:30px; background:#444; cursor:pointer; transition:.2s; }
@@ -45,6 +49,7 @@
     <section class="grid">
       <div class="card"><img class="focus-art" src="main-art.png" alt=""><h2>Основные настройки</h2>
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label></div>
+        <div class="timer-settings"><label for="mode">Режим:</label><select id="mode"><option value="permanent">Постоянно</option><option value="timer">По таймеру</option></select><input id="timerMinutes" type="number" min="1" max="1440" value="30" title="Минуты"><label for="timerMinutes">мин.</label></div>
       </div>
       <div class="card"><h2>Заблокированные сайты</h2><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
     </section>

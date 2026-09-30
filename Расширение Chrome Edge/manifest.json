@@ -3,7 +3,7 @@
   "name": "Режим концентрации",
   "version": "1.0.0",
   "description": "Помогает сосредоточиться и блокирует отвлекающие сайты.",
-  "permissions": ["webNavigation", "tabs", "storage", "scripting"],
+  "permissions": ["webNavigation", "tabs", "storage", "scripting", "alarms"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_title": "Режим концентрации",

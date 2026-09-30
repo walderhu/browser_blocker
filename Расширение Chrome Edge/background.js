@@ -5,7 +5,21 @@ const defaultHosts = [
 ];
 
 async function getSettings() {
-  return await chrome.storage.sync.get({ enabled: true, hosts: defaultHosts });
+  return await chrome.storage.sync.get({ enabled: true, hosts: defaultHosts, mode: "permanent", timerMinutes: 30, timerEndsAt: 0 });
+}
+
+async function syncTimer() {
+  const settings = await getSettings();
+  await chrome.alarms.clear("focusModeEnd");
+  if (!settings.enabled || settings.mode !== "timer") {
+    if (settings.timerEndsAt) await chrome.storage.sync.set({ timerEndsAt: 0 });
+    return;
+  }
+  const endsAt = settings.timerEndsAt > Date.now()
+    ? settings.timerEndsAt
+    : Date.now() + Math.max(1, Number(settings.timerMinutes) || 30) * 60 * 1000;
+  await chrome.storage.sync.set({ timerEndsAt: endsAt });
+  await chrome.alarms.create("focusModeEnd", { when: endsAt });
 }
 
 async function enforceOnOpenTabs() {
@@ -48,18 +62,31 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 });
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const settings = await chrome.storage.sync.get(["enabled", "hosts"]);
+  const settings = await chrome.storage.sync.get(["enabled", "hosts", "mode", "timerMinutes", "timerEndsAt"]);
   await chrome.storage.sync.set({
     enabled: settings.enabled ?? true,
-    hosts: settings.hosts?.length ? settings.hosts : defaultHosts
+    hosts: settings.hosts?.length ? settings.hosts : defaultHosts,
+    mode: settings.mode ?? "permanent",
+    timerMinutes: settings.timerMinutes ?? 30,
+    timerEndsAt: settings.timerEndsAt ?? 0
   });
+  await syncTimer();
 });
 
 // Если защита была включена, пока заблокированный сайт уже был открыт,
 // сразу заменяем такую вкладку страницей блокировки и выключаем звук.
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "sync" && changes.enabled?.newValue === true) enforceOnOpenTabs();
+  if (area !== "sync") return;
+  if (changes.enabled?.newValue === true) enforceOnOpenTabs();
+  if (changes.enabled || changes.mode || changes.timerMinutes) syncTimer();
 });
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== "focusModeEnd") return;
+  await chrome.storage.sync.set({ enabled: false, timerEndsAt: 0 });
+});
+
+chrome.runtime.onStartup.addListener(syncTimer);
 
 // Дополнительная проверка для вкладок, открытых до включения защиты.
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
