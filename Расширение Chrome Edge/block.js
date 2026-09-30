@@ -72,7 +72,7 @@ async function getGoogleToken(interactive = false) {
   const stored = await chrome.storage.local.get({ googleAccessToken: "", googleTokenExpiresAt: 0 });
   if (stored.googleAccessToken && stored.googleTokenExpiresAt > Date.now() + 60000) return stored.googleAccessToken;
   if (!interactive) return null;
-  const redirectUri = chrome.identity.getRedirectURL("calendar");
+  const redirectUri = chrome.identity.getRedirectURL();
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.search = new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, response_type: "token", redirect_uri: redirectUri, scope: GOOGLE_SCOPE, prompt: "consent" });
   const redirected = await chrome.identity.launchWebAuthFlow({ url: authUrl.toString(), interactive: true });
