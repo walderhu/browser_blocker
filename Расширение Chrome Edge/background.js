@@ -104,14 +104,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const result = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         args: [message.type === "musicInfo" ? "info" : message.action],
+        world: "MAIN",
         func: (action) => {
           if (action === "info") {
             const audio = document.querySelector("audio");
+            const metadata = navigator.mediaSession?.metadata;
             const titleElement = document.querySelector("[class*='track__title'], [class*='track__name'], [class*='d-track__name'], [class*='player-controls__track']");
             const artistElement = document.querySelector("[class*='track__artists'], [class*='track__artist'], [class*='d-track__artists'], [class*='d-track__artist']");
-            let title = titleElement?.textContent?.trim() || document.title.trim();
+            let title = metadata?.title?.trim() || titleElement?.textContent?.trim() || "";
             title = title.replace(/\s*[|—-]\s*Яндекс Музыка.*$/i, "").trim();
-            const artist = artistElement?.textContent?.trim();
+            const artist = metadata?.artist?.trim() || artistElement?.textContent?.trim() || "";
             return audio || title ? { title: artist ? `${artist} — ${title}` : title } : null;
           }
           const labels = (element) => [
