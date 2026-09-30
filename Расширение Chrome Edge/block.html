@@ -23,6 +23,12 @@
     .timer-label { color:#45c985; font-size:17px; text-transform:uppercase; letter-spacing:1px; }
     .timer-remaining { font-size:26px; font-weight:700; }
     .icon-wrap:hover #countdown { opacity:1; }
+    .icon-wrap.timer-locked .icon { filter:blur(4px); }
+    .icon-wrap.timer-locked #countdown { opacity:1; }
+    .timer-lock { position:absolute; z-index:3; left:50%; bottom:8px; display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; color:#bbb; background:transparent; opacity:0; transform:translateX(-50%); cursor:pointer; transition:opacity .2s, color .2s; }
+    .icon-wrap:hover .timer-lock, .icon-wrap.timer-locked .timer-lock { opacity:1; }
+    .timer-lock:hover { color:#45c985; }
+    .timer-lock svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
     .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
     .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
     .settings-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -87,6 +93,7 @@
         <circle id="timer-ring-progress" class="timer-ring-progress" cx="110" cy="110" r="95"></circle>
       </svg>
       <div id="countdown"><span class="timer-total"></span><span class="timer-label">Осталось</span><span class="timer-remaining"></span></div>
+      <button id="timer-lock" class="timer-lock" type="button" aria-label="Закрепить таймер"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button>
     </div>
     <h1>Доступ ограничен</h1>
     <div class="music-card">

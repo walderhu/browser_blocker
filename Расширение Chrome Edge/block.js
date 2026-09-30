@@ -2,6 +2,8 @@ const countdown = document.getElementById("countdown");
 const timerTotal = countdown.querySelector(".timer-total");
 const timerLabel = countdown.querySelector(".timer-label");
 const timerRemaining = countdown.querySelector(".timer-remaining");
+const iconWrap = document.querySelector(".icon-wrap");
+const timerLock = document.getElementById("timer-lock");
 const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
@@ -21,6 +23,21 @@ const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
 let restored = false;
+
+function setTimerLock(locked) {
+  iconWrap.classList.toggle("timer-locked", locked);
+  timerLock.setAttribute("aria-label", locked ? "Открепить таймер" : "Закрепить таймер");
+  timerLock.innerHTML = locked
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 7-2.65"/><path d="M16 10V7"/></svg>';
+  localStorage.setItem("timerLocked", String(locked));
+}
+
+setTimerLock(localStorage.getItem("timerLocked") === "true");
+timerLock.addEventListener("click", (event) => {
+  event.stopPropagation();
+  setTimerLock(!iconWrap.classList.contains("timer-locked"));
+});
 
 trackCover.addEventListener("error", () => {
   trackCover.style.display = "none";
