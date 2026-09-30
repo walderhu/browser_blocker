@@ -17,7 +17,7 @@ function setCalendarTheme(isLight) {
   calendarFrame.src = isLight ? lightCalendarUrl : darkCalendarUrl;
   calendarFrame.classList.toggle("is-light", isLight);
   calendarThemeButton.innerHTML = isLight
-    ? '<svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.5A8.5 8.5 0 1 1 8.5 3.5a7 7 0 0 0 12 12Z"/></svg>'
+    ? '<svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15.2A9 9 0 1 1 8.8 3.3 6.8 6.8 0 0 0 21 15.2Z"/></svg>'
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
   calendarThemeButton.setAttribute("aria-label", isLight ? "Включить тёмную тему календаря" : "Включить светлую тему календаря");
   localStorage.setItem("calendarTheme", isLight ? "light" : "dark");
