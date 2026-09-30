@@ -5,9 +5,8 @@ const state = document.getElementById("state");
 const status = document.getElementById("status");
 const mode = document.getElementById("mode");
 const timerMinutes = document.getElementById("timerMinutes");
-const timerPicker = document.getElementById("timerPicker");
-const pickerBackdrop = document.getElementById("pickerBackdrop");
-const pickerTitle = document.getElementById("pickerTitle");
+const timerReadout = document.getElementById("timerReadout");
+const timerPhase = document.getElementById("timerPhase");
 const clock = document.getElementById("clock");
 let toastTimer;
 let selectedHours = 0;
@@ -30,15 +29,16 @@ function load() {
     hosts.value = settings.hosts.join("\n");
     mode.value = settings.mode;
     timerMinutes.value = settings.timerMinutes;
-    renderTimerButton();
+    renderTimerReadout();
+    showHours();
   });
 }
 
-function renderTimerButton() {
+function renderTimerReadout() {
   const total = Number(timerMinutes.value) || 30;
   const hours = Math.floor(total / 60);
   const minutes = total % 60;
-  timerPicker.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  timerReadout.textContent = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
 }
 
 function saveProtectionMode(enabledValue = enabled.checked) {
@@ -70,23 +70,9 @@ function drawClock(values, onPick) {
   });
 }
 
-function showMinutes() {
-  pickerTitle.textContent = "Выбери минуты";
-  drawClock(Array.from({ length: 12 }, (_, index) => index * 5), (minutes) => {
-    const total = selectedHours * 60 + minutes;
-    if (total === 0) return;
-    timerMinutes.value = total;
-    renderTimerButton();
-    pickerBackdrop.hidden = true;
-    if (mode.value === "timer" && enabled.checked) saveProtectionMode();
-  });
-}
-
-function openTimerPicker() {
-  selectedHours = Math.floor((Number(timerMinutes.value) || 30) / 60);
-  pickerBackdrop.hidden = false;
-  pickerTitle.textContent = "Выбери часы";
-  drawClock(Array.from({ length: 12 }, (_, index) => index + 1), (hours) => {
+function showHours() {
+  timerPhase.textContent = "Выбери часы";
+  drawClock([12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], (hours) => {
     selectedHours = hours;
     showMinutes();
   });
@@ -101,9 +87,17 @@ function openTimerPicker() {
   clock.appendChild(zero);
 }
 
-timerPicker.addEventListener("click", openTimerPicker);
-document.getElementById("cancelPicker").addEventListener("click", () => { pickerBackdrop.hidden = true; });
-pickerBackdrop.addEventListener("click", (event) => { if (event.target === pickerBackdrop) pickerBackdrop.hidden = true; });
+function showMinutes() {
+  timerPhase.textContent = "Теперь выбери минуты";
+  drawClock(Array.from({ length: 12 }, (_, index) => index * 5), (minutes) => {
+    const total = selectedHours * 60 + minutes;
+    if (total === 0) return;
+    timerMinutes.value = total;
+    renderTimerReadout();
+    if (mode.value === "timer" && enabled.checked) saveProtectionMode();
+    showHours();
+  });
+}
 
 document.getElementById("save").addEventListener("click", () => {
   const list = hosts.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
