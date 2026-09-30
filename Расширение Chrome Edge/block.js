@@ -4,6 +4,8 @@ const timerLabel = countdown.querySelector(".timer-label");
 const timerRemaining = countdown.querySelector(".timer-remaining");
 const iconWrap = document.querySelector(".icon-wrap");
 const timerLock = document.getElementById("timer-lock");
+const focusToggle = document.getElementById("focus-toggle");
+const focusTimepicker = document.getElementById("focus-timepicker");
 const trackTitle = document.getElementById("track-title");
 const trackArtist = document.getElementById("track-artist");
 const trackCover = document.getElementById("track-cover");
@@ -17,6 +19,116 @@ const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 let timer;
 let restored = false;
+const PICKER_DEBUG = true;
+const pickerLog = (...args) => { if (PICKER_DEBUG) console.log("[FocusPicker]", new Date().toISOString(), ...args); };
+const pickerState = (label) => {
+  const modal = document.querySelector(".timepicker-modal");
+  const container = modal?.querySelector(".timepicker-container");
+  pickerLog(label, {
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+    htmlScrollTop: document.documentElement.scrollTop,
+    bodyScrollTop: document.body.scrollTop,
+    htmlOverflow: getComputedStyle(document.documentElement).overflow,
+    bodyOverflow: getComputedStyle(document.body).overflow,
+    bodyPosition: getComputedStyle(document.body).position,
+    modalClass: modal?.className,
+    modalRect: modal?.getBoundingClientRect().toJSON?.(),
+    containerRect: container?.getBoundingClientRect().toJSON?.()
+  });
+};
+window.addEventListener("scroll", () => pickerState("window scroll"), true);
+pickerLog("block page loaded", { href: location.href, viewport: [innerWidth, innerHeight] });
+
+function renderFocusToggle(enabled) {
+  if (!focusToggle) return;
+  focusToggle.classList.toggle("is-on", enabled);
+  focusToggle.setAttribute("aria-checked", String(enabled));
+  focusToggle.setAttribute("aria-label", enabled ? "Выключить режим концентрации" : "Включить режим концентрации");
+}
+
+chrome.storage.sync.get({ enabled: true }, settings => renderFocusToggle(settings.enabled));
+focusToggle?.addEventListener("click", async () => {
+  const settings = await chrome.storage.sync.get({ enabled: true });
+  await chrome.storage.sync.set({ enabled: !settings.enabled });
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.enabled) renderFocusToggle(changes.enabled.newValue);
+});
+
+function setFocusTimerValue(value) {
+  if (focusTimepicker) focusTimepicker.value = value;
+}
+
+if (focusTimepicker && window.M?.Timepicker) {
+  const pinPickerModal = () => {
+    const modal = document.querySelector(".timepicker-modal");
+    if (!modal) return;
+    Object.assign(modal.style, {
+      position: "fixed",
+      top: "0px",
+      left: "0px",
+      right: "0px",
+      bottom: "0px",
+      width: "100vw",
+      height: "100vh",
+      maxWidth: "none",
+      maxHeight: "none",
+      margin: "0px",
+      transform: "none"
+    });
+    pickerLog("modal pinned", { rect: modal.getBoundingClientRect().toJSON?.(), inline: modal.getAttribute("style") });
+  };
+  const lockFocusPage = () => {
+    pickerLog("lock start");
+    pickerState("before lock");
+    document.documentElement.classList.add("timepicker-lock");
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    document.body.style.overflow = "hidden";
+    pickerLog("normal lock applied");
+    requestAnimationFrame(() => pickerState("after lock frame"));
+  };
+  const unlockFocusPage = () => {
+    pickerLog("unlock start");
+    pickerState("before unlock");
+    document.documentElement.classList.remove("timepicker-lock");
+    document.body.style.overflow = "";
+    window.scrollTo(0, 0);
+    pickerState("after unlock");
+  };
+  focusTimepicker.addEventListener("mousedown", () => { pickerLog("timepicker mousedown"); lockFocusPage(); }, true);
+  focusTimepicker.addEventListener("focus", () => pickerLog("timepicker focus"), true);
+  focusTimepicker.addEventListener("touchstart", () => { pickerLog("timepicker touchstart"); lockFocusPage(); }, true);
+  M.Timepicker.init(focusTimepicker, {
+    twelveHour: false,
+    showClearBtn: true,
+    defaultTime: "00:30",
+    autoClose: true,
+    vibrate: true,
+    onOpenStart: () => {
+      pickerLog("Materialize onOpenStart");
+      lockFocusPage();
+      pinPickerModal();
+      setTimeout(() => pickerState("open + 0ms"), 0);
+      setTimeout(() => { pinPickerModal(); pickerState("open + 100ms"); }, 100);
+      setTimeout(() => { pinPickerModal(); pickerState("open + 500ms"); }, 500);
+    },
+    onCloseEnd: () => {
+      pickerLog("Materialize onCloseEnd");
+      unlockFocusPage();
+      setTimeout(() => pickerState("close + 100ms"), 100);
+    },
+    i18n: { cancel: "Отмена", clear: "Очистить", done: "OK" },
+    onSelect: async (hours, minutes) => {
+      const totalMinutes = Math.max(1, hours * 60 + minutes);
+      setFocusTimerValue(`${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`);
+      await chrome.storage.sync.set({ enabled: true, mode: "timer", timerMinutes: totalMinutes, timerEndsAt: 0 });
+    }
+  });
+  pickerLog("Materialize Timepicker initialized", M.Timepicker.getInstance(focusTimepicker));
+}
 
 function setTimerLock(locked) {
   iconWrap.classList.toggle("timer-locked", locked);

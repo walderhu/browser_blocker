@@ -4,9 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Доступ ограничен</title>
+  <link rel="stylesheet" href="vendor/materialize.min.css">
   <style>
     :root { color-scheme: dark; }
-    html, body { overflow: hidden; }
+    html, body { overflow: hidden; scrollbar-width: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar { display:none; width:0; height:0; }
+    html.timepicker-lock, html.timepicker-lock body { overflow:hidden !important; height:100% !important; }
+    html:has(.timepicker-modal.open), body:has(.timepicker-modal.open) { overflow:clip !important; overscroll-behavior:none !important; }
+    body:has(.timepicker-modal.open) { position:fixed !important; top:0 !important; left:0 !important; right:0 !important; width:100% !important; }
     body { margin: 0; min-height: 100vh; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; font-family: Segoe UI, Arial, sans-serif; background: linear-gradient(#090909b8, #090909d9), url('loading-bg.png') center / cover fixed; color: #f0f0f0; }
     main, .calendar-panel { box-sizing: border-box; border: 1px solid #4a4a4a; border-radius: 8px; background: linear-gradient(145deg, #202020, #151515); box-shadow: 0 20px 60px #000b; }
     main { position: relative; width: 360px; height: 522px; flex: 0 0 360px; padding: 28px 24px; text-align: center; }
@@ -19,7 +24,7 @@
     .timer-ring-track { stroke: #111; opacity: .8; }
     .timer-ring-progress { stroke: #45c985; stroke-linecap: round; transition: stroke-dashoffset .8s linear; }
     .icon-wrap #countdown { position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:0; margin:0; padding:12px; box-sizing:border-box; color:#fff; font-family:Consolas,"Courier New",monospace; text-align:center; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; pointer-events:none; }
-    .timer-total { color:#ddd; font-size:18px; }
+    .timer-total { visibility:hidden; color:#ddd; font-size:18px; }
     .timer-label { color:#45c985; font-size:17px; text-transform:uppercase; letter-spacing:1px; }
     .timer-remaining { font-size:26px; font-weight:700; }
     .icon-wrap:hover #countdown { opacity:1; }
@@ -32,6 +37,29 @@
     .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
     .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
     .settings-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .focus-toggle { position:absolute; z-index:4; top:62px; left:50%; display:block; width:50px; height:27px; padding:0; border:1px solid #666; border-radius:999px; background:#383838; opacity:0; transform:translateX(-50%); pointer-events:none; transition:opacity .2s; cursor:pointer; }
+    .icon-wrap:hover .focus-toggle { opacity:1; pointer-events:auto; }
+    .focus-toggle.is-on { border-color:#45c985; background:#45c985; }
+    .focus-toggle-knob { position:absolute; display:block; width:20px; height:20px; left:3px; top:2px; border-radius:50%; background:#e8e8e8; box-shadow:0 1px 4px #0008; transition:transform .2s; }
+    .focus-toggle.is-on .focus-toggle-knob { transform:translateX(22px); }
+    .focus-toggle:focus, .focus-toggle:focus-visible { outline:none; box-shadow:0 0 0 2px #45c98566; }
+    .focus-timer { position:absolute; z-index:4; top:96px; left:50%; width:58px; opacity:0; transform:translateX(-50%); pointer-events:none; transition:opacity .2s; }
+    .icon-wrap:hover .focus-timer { opacity:1; pointer-events:auto; }
+    .focus-toggle.is-on + .focus-timer { opacity:0; pointer-events:none; }
+    .icon-wrap.timer-locked .focus-toggle { opacity:1; pointer-events:none; }
+    .icon-wrap.timer-locked .focus-timer { opacity:0; pointer-events:none; }
+    .focus-timer-input { width:50px !important; height:24px !important; min-height:24px !important; margin:0 !important; padding:0 !important; border:0 !important; border-bottom:1px solid #777 !important; border-radius:0 !important; color:#ddd !important; background:transparent !important; font:600 11px Consolas,monospace !important; line-height:20px !important; text-align:center; box-shadow:none !important; }
+    .focus-timer-input:focus { border-bottom-color:#45c985 !important; box-shadow:none !important; }
+    .timepicker-modal { position:fixed !important; inset:0 !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; max-width:none !important; max-height:none !important; margin:0 !important; transform:none !important; border:0; border-radius:0; overflow:visible !important; background:transparent !important; box-shadow:none !important; }
+    .timepicker-modal .timepicker-container.modal-content { position:absolute; top:6%; left:30%; width:min(360px, calc(100vw - 32px)); height:auto; max-height:none; margin:0; display:flex; flex-direction:column !important; align-items:center; justify-content:center; padding:0 !important; transform:translateX(-50%) scale(.9); border:1px solid #555; border-radius:10px; overflow:visible !important; background:#202020; }
+    .timepicker-modal .timepicker-digital-display, .timepicker-modal .timepicker-analog-display, .timepicker-modal .timepicker-footer { flex:none; width:100%; }
+    .timepicker-modal .timepicker-digital-display { background:#292929 !important; }
+    .timepicker-modal .timepicker-analog-display { background:#202020 !important; }
+    .timepicker-modal .timepicker-footer { background:#202020 !important; }
+    .timepicker-modal .timepicker-digital-display { padding:5px !important; }
+    .timepicker-modal .timepicker-text-container { font-size:3rem; }
+    .timepicker-modal .timepicker-plate { width:270px; height:270px; margin-top:10px; margin-bottom:0; transform:scale(.85); transform-origin:center center; }
+    .modal-overlay { background:#000b !important; }
     h1 { margin: 0 0 14px; font: 700 36px Consolas, "Courier New", monospace; }
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
@@ -71,6 +99,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>
     </a>
     <div class="icon-wrap">
+      <button id="focus-toggle" class="focus-toggle" type="button" role="switch" aria-checked="false" aria-label="Включить режим концентрации"><span class="focus-toggle-knob"></span></button>
+      <div class="focus-timer"><input id="focus-timepicker" class="timepicker focus-timer-input" type="text" value="-:-" placeholder="-:-" aria-label="Таймер режима концентрации"></div>
       <div class="icon" role="img" aria-label="Иллюстрация режима концентрации"></div>
       <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
         <circle class="timer-ring-track" cx="110" cy="110" r="95"></circle>
@@ -97,6 +127,7 @@
     <button id="calendar-theme" class="calendar-theme-button" type="button" aria-label="Переключить тему календаря">☀</button>
     <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?src=tru60117%40gmail.com&amp;color=%234285f4&amp;src=o9h6dglqoqrdrocjvh81m53490%40group.calendar.google.com&amp;color=%23d50000&amp;ctz=Europe%2FMoscow&amp;mode=WEEK&amp;bgcolor=%23151515&amp;hl=ru&amp;showCalendars=1&amp;showTabs=0&amp;showTz=0" title="Мои календари" loading="lazy"></iframe>
   </section>
+  <script src="vendor/materialize.min.js"></script>
   <script src="block.js"></script>
 </body>
 </html>
