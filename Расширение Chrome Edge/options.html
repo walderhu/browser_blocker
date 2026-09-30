@@ -15,6 +15,10 @@
     .subtitle { margin:5px 0 0; color:var(--muted); }
     .grid { display:grid; grid-template-columns:1fr; gap:18px; }
     .card { padding:24px; border:1px solid var(--line); border-radius:8px; background:linear-gradient(145deg,#202020,#151515); box-shadow:0 18px 45px #0008; }
+    .settings-card { position:relative; }
+    .focus-view-button { position:absolute; top:16px; right:18px; display:grid; place-items:center; width:30px; height:30px; color:#aaa; text-decoration:none; transition:color .2s, transform .2s; }
+    .focus-view-button:hover { color:#45c985; transform:scale(1.08); }
+    .focus-view-button svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
     .card h2 { margin:0 0 6px; font-size:19px; }
     .card p { margin:0 0 18px; color:var(--muted); }
     .card-header { display:flex; align-items:center; justify-content:space-between; gap:16px; cursor:pointer; user-select:none; }
@@ -59,7 +63,7 @@
 <body>
   <main class="shell">
     <section class="grid">
-      <div class="card"><img class="focus-art" src="main-art.png" alt=""><h2>Основные настройки</h2>
+      <div class="card settings-card"><a class="focus-view-button" href="block.html" target="_blank" rel="noopener noreferrer" aria-label="Открыть режим просмотра"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></a><img class="focus-art" src="main-art.png" alt=""><h2>Основные настройки</h2>
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><div class="state-actions"><input id="timepicker" class="timepicker timepicker-input" type="text" value="-:-" placeholder="Время"><div id="enabled" class="focus-toggle" role="switch" tabindex="0" aria-checked="false"><span class="focus-toggle-knob"></span></div></div></div>
         <a class="focus-link" href="block.html" target="_blank" rel="noopener noreferrer">Открыть страницу фокуса →</a>
         <input id="timerMinutes" type="hidden" value="30">
