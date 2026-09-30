@@ -13,15 +13,18 @@ async function enforceOnOpenTabs() {
   if (!settings.enabled) return;
   const tabs = await chrome.tabs.query({});
   for (const tab of tabs) {
-    await enforceTab(tab, settings);
+    await injectIntoTab(tab, settings);
   }
 }
 
-async function enforceTab(tab, settings = null) {
+async function injectIntoTab(tab, settings = null) {
   const current = settings || await getSettings();
   if (!current.enabled || !tab?.id || !tab.url || !isBlocked(tab.url, current.hosts)) return;
-  const target = chrome.runtime.getURL("block.html") + "?site=" + encodeURIComponent(tab.url);
-  await chrome.tabs.update(tab.id, { muted: true, url: target });
+  try {
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+  } catch (_) {
+    // Браузерные служебные страницы не разрешают инъекцию скриптов.
+  }
 }
 
 function isBlocked(url, hosts) {
@@ -61,9 +64,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // Дополнительная проверка для вкладок, открытых до включения защиты.
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   const tab = await chrome.tabs.get(tabId);
-  await enforceTab(tab);
+  await injectIntoTab(tab);
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (changeInfo.url || changeInfo.status === "complete") await enforceTab(tab);
+  if (changeInfo.url || changeInfo.status === "complete") await injectIntoTab(tab);
 });
