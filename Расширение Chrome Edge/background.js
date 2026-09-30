@@ -5,6 +5,20 @@ const defaultHosts = [
 ];
 let lastMusicTabId = null;
 
+async function sendMediaPlayPause(tabId) {
+  const target = { tabId };
+  try {
+    await chrome.debugger.attach(target, "1.3");
+    await chrome.debugger.sendCommand(target, "Input.dispatchKeyEvent", { type: "keyDown", key: "MediaPlayPause", code: "MediaPlayPause", nativeVirtualKeyCode: 179, windowsVirtualKeyCode: 179 });
+    await chrome.debugger.sendCommand(target, "Input.dispatchKeyEvent", { type: "keyUp", key: "MediaPlayPause", code: "MediaPlayPause", nativeVirtualKeyCode: 179, windowsVirtualKeyCode: 179 });
+    return true;
+  } catch (_) {
+    return false;
+  } finally {
+    try { await chrome.debugger.detach(target); } catch (_) {}
+  }
+}
+
 chrome.action.onClicked.addListener(async () => {
   const settings = await getSettings();
   if (!settings.enabled) {
@@ -145,7 +159,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         target: { tabId: tab.id },
         args: [message.type === "musicInfo" ? "info" : message.action],
         world: "MAIN",
-        func: (action) => {
+        func: async (action) => {
           if (action === "info") {
             const audio = document.querySelector("audio");
             const metadata = navigator.mediaSession?.metadata;
@@ -170,23 +184,25 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
           const buttons = [...document.querySelectorAll("button, [role='button'], [aria-label], [title]")];
           if (action === "pause") {
-            const playerButton = document.querySelector(
-              "button[aria-label*='Пауза'], button[aria-label*='Воспроизвести'], [role='button'][aria-label*='Пауза'], [role='button'][aria-label*='Воспроизвести'], .player-controls__btn_play"
-            );
-            if (playerButton) {
-              playerButton.click();
-              return true;
-            }
-            const button = buttons.find(element => /пауз|play|pause|player-controls__btn_play/.test(labels(element)))
-              || buttons.find(element => /воспроизвед/.test(labels(element)));
-            if (button) {
+            const audios = [...document.querySelectorAll("audio")];
+            const audio = audios.find(element => !element.paused) || audios[0];
+            const before = audio?.paused;
+            const candidates = [...new Set([
+              ...document.querySelectorAll("button[aria-label*='Пауза'], button[aria-label*='Воспроизвести'], button[title*='Пауза'], button[title*='Воспроизвести'], [role='button'][aria-label*='Пауза'], [role='button'][aria-label*='Воспроизвести'], [class*='player-controls__btn_play'], [class*='player-controls__btn_pause'], [data-test-id*='play']"),
+              ...buttons.filter(element => /пауз|воспроизвед|play|pause|player-controls__btn_play|player-controls__btn_pause/.test(labels(element)))
+            ])];
+            for (const button of candidates) {
               button.click();
-              return true;
+              await new Promise(resolve => setTimeout(resolve, 180));
+              const current = audios.find(element => !element.paused) || audios[0];
+              if (!current || typeof before !== "boolean" || current.paused !== before) return true;
             }
-            const audio = [...document.querySelectorAll("audio")].find(element => !element.paused)
-              || document.querySelector("audio");
             if (!audio) return false;
-            audio.paused ? audio.play().catch(() => {}) : audio.pause();
+            if (audio.paused) {
+              try { await audio.play(); } catch (_) { return false; }
+            } else {
+              audio.pause();
+            }
             return true;
           }
           const pattern = action === "next"
@@ -198,7 +214,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         }
       });
       lastMusicTabId = tab.id;
-      sendResponse(message.type === "musicInfo" ? (result[0]?.result || { ok: false }) : { ok: true });
+      let ok = Boolean(result[0]?.result);
+      if (message.type === "musicControl" && message.action === "pause" && !ok) ok = await sendMediaPlayPause(tab.id);
+      sendResponse(message.type === "musicInfo" ? (result[0]?.result || { ok: false }) : { ok });
     } catch (_) {
       sendResponse({ ok: false });
     }
