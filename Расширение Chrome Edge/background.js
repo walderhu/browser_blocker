@@ -114,7 +114,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             let title = metadata?.title?.trim() || titleElement?.textContent?.trim() || "";
             title = title.replace(/\s*[|—-]\s*Яндекс Музыка.*$/i, "").trim();
             const artist = metadata?.artist?.trim() || artistElement?.textContent?.trim() || "";
-            return audio || title ? { title: artist ? `${artist} — ${title}` : title } : null;
+            const cover = metadata?.artwork?.[0]?.src?.replace(/\{w\}/g, "160").replace(/\{h\}/g, "160").replace(/\{c\}/g, "1") || "";
+            return audio || title ? { title: artist ? `${artist} — ${title}` : title, cover } : null;
           }
           const labels = (element) => [
             element.getAttribute("aria-label"),

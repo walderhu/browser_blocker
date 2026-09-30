@@ -1,5 +1,6 @@
 const countdown = document.getElementById("countdown");
 const trackTitle = document.getElementById("track-title");
+const trackCover = document.getElementById("track-cover");
 const progressRing = document.getElementById("timer-ring-progress");
 const calendarFrame = document.querySelector(".calendar-frame");
 const calendarThemeButton = document.getElementById("calendar-theme");
@@ -36,9 +37,14 @@ function updateTrackTitle() {
   chrome.runtime.sendMessage({ type: "musicInfo" }, (response) => {
     if (chrome.runtime.lastError || !response?.title) {
       trackTitle.textContent = "";
+      trackCover.style.display = "none";
       return;
     }
     trackTitle.textContent = response.title;
+    if (response.cover) {
+      trackCover.src = response.cover;
+      trackCover.style.display = "block";
+    }
   });
 }
 

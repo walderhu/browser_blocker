@@ -24,7 +24,10 @@
     p { color: #aaa; font-size: 18px; line-height: 1.5; }
     #countdown { min-height: 28px; margin: 18px 0 0; color: #f0f0f0; font: 600 20px Consolas,"Courier New",monospace; }
     .music-controls { display: flex; justify-content: center; gap: 12px; margin-top: 14px; }
-    .track-title { max-width: 300px; min-height: 22px; margin: 24px auto 0; overflow: hidden; color: #aaa; font: 600 17px Consolas,"Courier New",monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .music-card { display:flex; align-items:center; gap:12px; margin:18px auto 0; padding:10px; border:1px solid #454545; border-radius:9px; background:#171717aa; text-align:left; }
+    .track-cover { display:none; flex:0 0 72px; width:72px; height:72px; object-fit:cover; border-radius:6px; background:#292929; }
+    .music-info { min-width:0; flex:1; }
+    .track-title { max-width:none; min-height:22px; margin:0; overflow:hidden; color:#aaa; font:600 17px Consolas,"Courier New",monospace; text-overflow:ellipsis; white-space:nowrap; }
     .music-button { width: 58px; height: 50px; padding: 0; border: 0; border-radius: 0; color: #bbb; background: transparent !important; font-size: 29px; line-height: 1; cursor: pointer; transition: color .2s, transform .2s; }
     .music-button:hover { color: #45c985; transform: translateY(-1px); }
     .music-button svg { display: block; width: 32px; height: 32px; margin: auto; fill: currentColor; }
@@ -57,11 +60,16 @@
     </div>
     <h1>Доступ ограничен</h1>
     <div id="countdown"></div>
-    <div id="track-title" class="track-title"></div>
-    <div class="music-controls" aria-label="Управление Яндекс Музыкой">
-      <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5 7 12l11 7V5Z"/></svg></button>
-      <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
-      <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 11 7-11 7V5Z"/></svg></button>
+    <div class="music-card">
+      <img id="track-cover" class="track-cover" alt="Обложка текущего трека">
+      <div class="music-info">
+        <div id="track-title" class="track-title"></div>
+        <div class="music-controls" aria-label="Управление Яндекс Музыкой">
+          <button class="music-button" type="button" data-music-action="previous" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5 7 12l11 7V5Z"/></svg></button>
+          <button class="music-button" type="button" data-music-action="pause" aria-label="Пауза или воспроизведение"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+          <button class="music-button" type="button" data-music-action="next" aria-label="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 11 7-11 7V5Z"/></svg></button>
+        </div>
+      </div>
     </div>
   </main>
   <section class="calendar-panel" aria-label="Мой календарь">
