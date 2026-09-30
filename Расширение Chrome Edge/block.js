@@ -69,20 +69,8 @@ function escapeHtml(value) {
 }
 
 async function getGoogleToken(interactive = false) {
-  const stored = await chrome.storage.local.get({ googleAccessToken: "", googleTokenExpiresAt: 0 });
-  if (stored.googleAccessToken && stored.googleTokenExpiresAt > Date.now() + 60000) return stored.googleAccessToken;
-  if (!interactive) return null;
-  const redirectUri = chrome.identity.getRedirectURL();
-  const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  authUrl.search = new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, response_type: "token", redirect_uri: redirectUri, scope: GOOGLE_SCOPE, prompt: "consent" });
-  const redirected = await chrome.identity.launchWebAuthFlow({ url: authUrl.toString(), interactive: true });
-  const hash = new URL(redirected).hash.slice(1);
-  const params = new URLSearchParams(hash);
-  const accessToken = params.get("access_token");
-  if (!accessToken) throw new Error("Google authorization was cancelled");
-  const expiresIn = Number(params.get("expires_in")) || 3600;
-  await chrome.storage.local.set({ googleAccessToken: accessToken, googleTokenExpiresAt: Date.now() + expiresIn * 1000 });
-  return accessToken;
+  const result = await chrome.identity.getAuthToken({ interactive });
+  return typeof result === "string" ? result : result?.token || null;
 }
 
 async function googleRequest(url, options = {}, interactive = false) {
@@ -90,7 +78,8 @@ async function googleRequest(url, options = {}, interactive = false) {
   if (!token) return null;
   const response = await fetch(url, { ...options, headers: { ...(options.headers || {}), Authorization: `Bearer ${token}`, "Content-Type": "application/json" } });
   if (response.status === 401) {
-    await chrome.storage.local.remove(["googleAccessToken", "googleTokenExpiresAt"]);
+    const token = await getGoogleToken(false);
+    if (token) await chrome.identity.removeCachedAuthToken({ token });
     return null;
   }
   if (!response.ok) throw new Error(`Google Calendar API: ${response.status}`);

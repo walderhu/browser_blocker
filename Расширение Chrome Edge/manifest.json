@@ -9,6 +9,10 @@
     "default_title": "Режим концентрации",
     "default_icon": "icon.png"
   },
+  "oauth2": {
+    "client_id": "205794802854-ghld15d1198nqu7gim17e399lj8ou89g.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/calendar"]
+  },
   "icons": {
     "16": "icon.png",
     "32": "icon.png",
