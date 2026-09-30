@@ -33,7 +33,13 @@
     button { padding:11px 16px; border:1px solid #777; border-radius:5px; color:#111; background:var(--blue); font:600 14px "Segoe UI",Arial; cursor:pointer; }
     button:hover { filter:brightness(1.1); }
     button.secondary { color:var(--text); background:#292929; }
+    button.analyze { margin-top:4px; color:var(--text); background:#3a3a3a; border-color:#777; }
     #status { min-height:22px; margin-top:12px; color:#7ce2ad; }
+    #historyResults { display:grid; gap:8px; margin-top:16px; }
+    .history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid #383838; border-radius:5px; background:#151515; }
+    .history-item input { width:16px; height:16px; accent-color:#d6d6d6; }
+    .history-item small { display:block; color:#888; }
+    .empty { color:#888; padding:8px 0; }
     .tips { display:grid; gap:12px; margin-top:14px; }
     @media (max-width:700px) { .shell { padding-top:28px; } .grid { grid-template-columns:1fr; } h1 { font-size:26px; } }
   </style>
@@ -46,6 +52,7 @@
         <div class="control"><div><strong>Состояние</strong><small id="state">Загрузка…</small></div><span id="badge">●</span></div>
       </div>
       <div class="card"><h2>Заблокированные сайты</h2><textarea id="hosts" spellcheck="false" placeholder="youtube.com\nexample.com"></textarea><div class="buttons"><button id="save">Сохранить список</button><button id="reset" class="secondary">Вернуть список по умолчанию</button></div><div id="status" role="status"></div></div>
+      <div class="card"><h2>Поиск отвлекающих сайтов</h2><button id="analyze" class="analyze">Проанализировать историю браузера</button><div id="historyResults"></div></div>
     </section>
   </main>
   <script src="options.js"></script>
