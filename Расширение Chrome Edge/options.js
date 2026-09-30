@@ -60,10 +60,7 @@ function load() {
 }
 
 function renderTimepicker() {
-  const total = Number(timerMinutes.value) || 30;
-  const hours = Math.floor(total / 60);
-  const minutes = total % 60;
-  timepicker.value = [String(hours).padStart(2, "0"), String(minutes).padStart(2, "0")].join(":");
+  timepicker.value = "-:-";
 }
 
 function formatRemaining(milliseconds) {
@@ -117,10 +114,11 @@ function saveProtectionMode(enabledValue = isEnabled(), modeValue = "permanent")
 
 function initTimepicker() {
   timepickerInstance?.destroy();
+  const selectedTime = /^(\d{1,2}):(\d{2})$/.test(timepicker.value) ? timepicker.value : "00:30";
   timepickerInstance = M.Timepicker.init(timepicker, {
     twelveHour: false,
     showClearBtn: true,
-    defaultTime: timepicker.value || "00:30",
+    defaultTime: selectedTime,
     autoClose: true,
     vibrate: true,
     i18n: { cancel: "Отмена", clear: "Очистить", done: "OK" },
