@@ -442,6 +442,13 @@ document.querySelectorAll("[data-music-action]").forEach((button) => {
   });
 });
 
+document.addEventListener("keydown", event => {
+  if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+  if (event.target.closest("input, textarea, [contenteditable=\"true\"], .timepicker-modal")) return;
+  event.preventDefault();
+  chrome.runtime.sendMessage({ type: "musicControl", action: event.key === "ArrowLeft" ? "previous" : "next" });
+});
+
 function updatePauseButton(paused) {
   if (!pauseButton || typeof paused !== "boolean") return;
   pauseButton.querySelector("svg").innerHTML = paused
