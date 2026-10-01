@@ -14,9 +14,18 @@ const pauseButton = document.querySelector('[data-music-action="pause"]');
 const progressRing = document.getElementById("timer-ring-progress");
 const calendarFrame = document.querySelector(".calendar-frame");
 const calendarThemeButton = document.getElementById("calendar-theme");
+const mainPanel = document.querySelector("main");
+const settingsButton = document.getElementById("settings-button");
+const focusHosts = document.getElementById("focus-hosts");
+const focusSaveHosts = document.getElementById("focus-save-hosts");
+const focusResetHosts = document.getElementById("focus-reset-hosts");
+const focusSettingsStatus = document.getElementById("focusSettingsStatus");
+const focusSettingsHeader = document.getElementById("focusSettingsHeader");
+const focusSettingsCollapse = document.getElementById("focusSettingsCollapse");
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
+const defaultFocusHosts = ["youtube.com", "youtu.be", "youtube-nocookie.com"];
 let timer;
 let restored = false;
 const PICKER_DEBUG = true;
@@ -39,6 +48,67 @@ const pickerState = (label) => {
 };
 window.addEventListener("scroll", () => pickerState("window scroll"), true);
 pickerLog("block page loaded", { href: location.href, viewport: [innerWidth, innerHeight] });
+
+function showFocusSettings(open) {
+  if (!mainPanel || !settingsButton) return;
+  mainPanel.classList.toggle("focus-settings-open", open);
+  settingsButton.setAttribute("aria-label", open ? "Вернуться в режим концентрации" : "Открыть настройки сайтов");
+  settingsButton.innerHTML = open
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>';
+  if (open && focusHosts) {
+    chrome.storage.sync.get({ hosts: defaultFocusHosts }, settings => {
+      focusHosts.value = (Array.isArray(settings.hosts) ? settings.hosts : defaultFocusHosts).join("\n");
+      focusHosts.focus();
+    });
+  }
+}
+
+function showFocusSettingsStatus() {
+  if (!focusSettingsStatus) return;
+  focusSettingsStatus.textContent = "Сохранено";
+  setTimeout(() => { focusSettingsStatus.textContent = ""; }, 2000);
+}
+
+async function saveFocusHosts(hosts) {
+  const normalized = hosts.map(host => host.trim()).filter(Boolean);
+  await chrome.storage.sync.set({ hosts: normalized });
+  showFocusSettingsStatus();
+}
+
+settingsButton?.addEventListener("click", event => {
+  event.preventDefault();
+  showFocusSettings(!mainPanel?.classList.contains("focus-settings-open"));
+});
+chrome.storage.sync.get({ hosts: defaultFocusHosts }, settings => {
+  if (focusHosts) focusHosts.value = (Array.isArray(settings.hosts) ? settings.hosts : defaultFocusHosts).join("\n");
+});
+focusSaveHosts?.addEventListener("click", () => {
+  if (focusHosts) saveFocusHosts(focusHosts.value.split(/\r?\n/));
+});
+focusResetHosts?.addEventListener("click", async () => {
+  if (!focusHosts) return;
+  focusHosts.value = defaultFocusHosts.join("\n");
+  await saveFocusHosts(defaultFocusHosts);
+});
+function toggleFocusSettingsCard() {
+  const card = focusSettingsCollapse.closest(".blocked-sites-card");
+  const collapsed = card?.classList.toggle("is-collapsed");
+  focusSettingsCollapse.setAttribute("aria-expanded", String(!collapsed));
+}
+focusSettingsHeader?.addEventListener("click", event => {
+  if (event.target.closest("button")) return;
+  toggleFocusSettingsCard();
+});
+focusSettingsHeader?.addEventListener("keydown", event => {
+  if (event.target !== focusSettingsHeader || !["Enter", " "].includes(event.key)) return;
+  event.preventDefault();
+  toggleFocusSettingsCard();
+});
+focusSettingsCollapse?.addEventListener("click", event => {
+  event.stopPropagation();
+  toggleFocusSettingsCard();
+});
 
 function renderFocusToggle(enabled) {
   if (!focusToggle) return;
