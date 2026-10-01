@@ -127,6 +127,11 @@ focusToggle?.addEventListener("click", async () => {
     await chrome.storage.sync.set({ enabled: false });
     return;
   }
+  const picker = focusTimepicker && window.M?.Timepicker?.getInstance(focusTimepicker);
+  if (picker) {
+    picker.open();
+    return;
+  }
   const timerMinutes = getFocusTimerMinutes();
   await chrome.storage.sync.set({
     enabled: true,
@@ -202,13 +207,19 @@ if (focusTimepicker && window.M?.Timepicker) {
       pickerLog("Materialize onCloseEnd");
       unlockFocusPage();
       if (confirmTimerSelection && pendingTimerMinutes !== null) {
-        chrome.storage.sync.set({ enabled: true, mode: "timer", timerMinutes: pendingTimerMinutes, timerEndsAt: 0 });
+        if (pendingTimerMinutes === 0) setFocusTimerValue("-:-");
+        chrome.storage.sync.set({
+          enabled: true,
+          mode: pendingTimerMinutes > 0 ? "timer" : "permanent",
+          timerMinutes: pendingTimerMinutes,
+          timerEndsAt: 0
+        });
       }
       pendingTimerMinutes = null;
       confirmTimerSelection = false;
       setTimeout(() => pickerState("close + 100ms"), 100);
     },
-    i18n: { cancel: "Отмена", clear: "Очистить", done: "OK" },
+    i18n: { cancel: "Отмена", clear: "Перманент", done: "OK" },
     onSelect: async (hours, minutes) => {
       const totalMinutes = Math.max(1, hours * 60 + minutes);
       setFocusTimerValue(`${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`);
@@ -216,7 +227,15 @@ if (focusTimepicker && window.M?.Timepicker) {
     }
   });
   document.addEventListener("click", event => {
-    if (event.target.closest(".timepicker-close")) confirmTimerSelection = true;
+    const button = event.target.closest("button");
+    if (!button) return;
+    if (button.classList.contains("timepicker-close")) {
+      confirmTimerSelection = button.textContent.trim() === "OK";
+    } else if (button.classList.contains("timepicker-clear")) {
+      confirmTimerSelection = true;
+      pendingTimerMinutes = 0;
+      setFocusTimerValue("-:-");
+    }
   }, true);
   pickerLog("Materialize Timepicker initialized", M.Timepicker.getInstance(focusTimepicker));
 }
