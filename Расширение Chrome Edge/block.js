@@ -474,11 +474,17 @@ function updateCountdown() {
     document.documentElement.style.overflow = isBlocked ? "hidden" : "auto";
     document.body.style.overflow = isBlocked ? "hidden" : "auto";
 
-    if (!settings.enabled || settings.mode !== "timer" || !settings.timerEndsAt) {
+    if (!settings.enabled) {
       timerTotal.textContent = "";
       timerLabel.textContent = "";
       timerRemaining.textContent = "";
-      if (!settings.enabled) restoreBlockedPage();
+      restoreBlockedPage();
+      return;
+    }
+    if (settings.mode !== "timer" || !settings.timerEndsAt) {
+      timerTotal.textContent = "";
+      timerLabel.textContent = settings.mode === "permanent" ? "Перманент" : "";
+      timerRemaining.textContent = "";
       return;
     }
     const remaining = settings.timerEndsAt - Date.now();
