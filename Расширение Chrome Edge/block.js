@@ -3,6 +3,7 @@ const timerTotal = countdown.querySelector(".timer-total");
 const timerLabel = countdown.querySelector(".timer-label");
 const timerRemaining = countdown.querySelector(".timer-remaining");
 const iconWrap = document.querySelector(".icon-wrap");
+const focusArt = document.getElementById("focus-art");
 const timerLock = document.getElementById("timer-lock");
 const focusToggle = document.getElementById("focus-toggle");
 const focusTimepicker = document.getElementById("focus-timepicker");
@@ -25,6 +26,19 @@ const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 const defaultFocusHosts = ["youtube.com", "youtu.be", "youtube-nocookie.com"];
+if (focusArt) {
+  const artImage = new Image();
+  artImage.onload = () => {
+    const context = focusArt.getContext("2d");
+    const scale = Math.min(focusArt.width / artImage.naturalWidth, focusArt.height / artImage.naturalHeight);
+    const width = artImage.naturalWidth * scale;
+    const height = artImage.naturalHeight * scale;
+    context.clearRect(0, 0, focusArt.width, focusArt.height);
+    context.drawImage(artImage, (focusArt.width - width) / 2, (focusArt.height - height) / 2, width, height);
+  };
+  artImage.src = "block-art.png";
+  focusArt.addEventListener("contextmenu", event => event.preventDefault());
+}
 if (blockedUrl) {
   if (focusHeading) focusHeading.textContent = "Доступ ограничен";
   document.title = "Доступ ограничен";
