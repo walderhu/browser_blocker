@@ -253,6 +253,17 @@ if (focusTimepicker && window.M?.Timepicker) {
     if (!button) return;
     if (button.classList.contains("timepicker-close")) {
       confirmTimerSelection = ["OK", "Перманент"].includes(button.textContent.trim());
+      if (confirmTimerSelection) {
+        const picker = M.Timepicker.getInstance(focusTimepicker);
+        pendingTimerMinutes = picker ? picker.hours * 60 + picker.minutes : (pendingTimerMinutes ?? getFocusTimerMinutes());
+        setFocusTimerValue(`${String(Math.floor(pendingTimerMinutes / 60)).padStart(2, "0")}:${String(pendingTimerMinutes % 60).padStart(2, "0")}`);
+        chrome.storage.sync.set({
+          enabled: true,
+          mode: pendingTimerMinutes > 0 ? "timer" : "permanent",
+          timerMinutes: pendingTimerMinutes,
+          timerEndsAt: 0
+        });
+      }
     } else if (button.classList.contains("timepicker-clear")) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -266,6 +277,17 @@ if (focusTimepicker && window.M?.Timepicker) {
       }
       updateTimepickerDoneLabel(0);
     }
+  }, true);
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    const modal = document.querySelector(".timepicker-modal.open");
+    if (!modal) return;
+    const doneButton = [...modal.querySelectorAll(".timepicker-close")]
+      .find(button => ["OK", "Перманент"].includes(button.textContent.trim()));
+    if (!doneButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    doneButton.click();
   }, true);
   pickerLog("Materialize Timepicker initialized", M.Timepicker.getInstance(focusTimepicker));
 }
