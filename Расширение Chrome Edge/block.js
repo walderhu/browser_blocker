@@ -20,8 +20,6 @@ const focusHosts = document.getElementById("focus-hosts");
 const focusSaveHosts = document.getElementById("focus-save-hosts");
 const focusResetHosts = document.getElementById("focus-reset-hosts");
 const focusSettingsStatus = document.getElementById("focusSettingsStatus");
-const focusSettingsHeader = document.getElementById("focusSettingsHeader");
-const focusSettingsCollapse = document.getElementById("focusSettingsCollapse");
 const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
@@ -90,24 +88,6 @@ focusResetHosts?.addEventListener("click", async () => {
   if (!focusHosts) return;
   focusHosts.value = defaultFocusHosts.join("\n");
   await saveFocusHosts(defaultFocusHosts);
-});
-function toggleFocusSettingsCard() {
-  const card = focusSettingsCollapse.closest(".blocked-sites-card");
-  const collapsed = card?.classList.toggle("is-collapsed");
-  focusSettingsCollapse.setAttribute("aria-expanded", String(!collapsed));
-}
-focusSettingsHeader?.addEventListener("click", event => {
-  if (event.target.closest("button")) return;
-  toggleFocusSettingsCard();
-});
-focusSettingsHeader?.addEventListener("keydown", event => {
-  if (event.target !== focusSettingsHeader || !["Enter", " "].includes(event.key)) return;
-  event.preventDefault();
-  toggleFocusSettingsCard();
-});
-focusSettingsCollapse?.addEventListener("click", event => {
-  event.stopPropagation();
-  toggleFocusSettingsCard();
 });
 
 function renderFocusToggle(enabled) {
