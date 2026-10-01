@@ -44,6 +44,7 @@
     .timer-lock { position:absolute; z-index:3; left:50%; bottom:34px; display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; color:#bbb; background:transparent; opacity:0; transform:translateX(-50%); cursor:pointer; transition:opacity .2s, color .2s; }
     .icon-wrap:hover .timer-lock, .icon-wrap.timer-locked .timer-lock { opacity:1; }
     .timer-lock:hover { color:#45c985; }
+    .timer-lock:focus, .timer-lock:focus-visible { outline:none !important; border:0 !important; background:transparent !important; box-shadow:none !important; -webkit-tap-highlight-color:transparent; }
     .timer-lock svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
     .settings-button { position: absolute; top: 12px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #aaa; background: transparent; text-decoration: none; transition: color .2s, transform .2s; }
     .settings-button:hover { color: #45c985; transform: rotate(-12deg); }
@@ -53,11 +54,11 @@
     .focus-toggle.is-on { border-color:#45c985; background:#45c985; }
     .focus-toggle-knob { position:absolute; display:block; width:20px; height:20px; left:3px; top:2px; border-radius:50%; background:#e8e8e8; box-shadow:0 1px 4px #0008; transition:transform .2s; }
     .focus-toggle.is-on .focus-toggle-knob { transform:translateX(22px); }
-    .focus-toggle:focus, .focus-toggle:focus-visible { outline:none; box-shadow:0 0 0 2px #45c98566; }
+    .focus-toggle:focus, .focus-toggle:focus-visible { outline:none !important; border:0 !important; box-shadow:none !important; -webkit-tap-highlight-color:transparent; }
     .focus-timer { position:absolute; z-index:4; top:96px; left:50%; width:58px; opacity:0; transform:translateX(-50%); pointer-events:none; transition:opacity .2s; }
     .icon-wrap:hover .focus-timer { opacity:1; pointer-events:auto; }
     .focus-toggle.is-on + .focus-timer { opacity:0; pointer-events:none; }
-    .icon-wrap.timer-locked .focus-toggle { opacity:1; pointer-events:none; }
+    .icon-wrap.timer-locked .focus-toggle { opacity:1; pointer-events:auto; }
     .icon-wrap.timer-locked .focus-timer { opacity:0; pointer-events:none; }
     .focus-timer-input { width:50px !important; height:24px !important; min-height:24px !important; margin:0 !important; padding:0 !important; border:0 !important; border-bottom:1px solid #777 !important; border-radius:0 !important; color:#ddd !important; background:transparent !important; font:600 11px Consolas,monospace !important; line-height:20px !important; text-align:center; box-shadow:none !important; }
     .focus-timer-input:focus { border-bottom-color:#45c985 !important; box-shadow:none !important; }
@@ -100,6 +101,7 @@
     .calendar-theme-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
     .calendar-theme-button svg.moon-icon { fill: currentColor; stroke: none; }
     .calendar-theme-button:hover { color: #45c985; transform: scale(1.08); }
+    .calendar-theme-button:focus, .calendar-theme-button:focus-visible { outline:none !important; border:0 !important; background:transparent !important; box-shadow:none !important; -webkit-tap-highlight-color:transparent; }
     @media (max-width: 980px) { body { flex-direction: column; } main, .calendar-panel { width: min(860px, calc(100vw - 48px)); } main { height: auto; flex-basis: auto; } .calendar-panel { height: auto; } .music-card { position:static; margin:12px auto 0; } }
     @media (max-width: 640px) { main { padding: 28px 20px; } .icon { width: 170px; height: 170px; } h1 { font-size: 28px; } .calendar-days { gap:6px; } .day-header { padding:8px; font-size:12px; } .day-events { padding:5px; } }
   </style>
