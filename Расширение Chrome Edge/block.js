@@ -33,6 +33,8 @@ if (blockedUrl) {
 }
 let timer;
 let restored = false;
+let pendingTimerMinutes = null;
+let confirmTimerSelection = false;
 const PICKER_DEBUG = true;
 const pickerLog = (...args) => { if (PICKER_DEBUG) console.log("[FocusPicker]", new Date().toISOString(), ...args); };
 const pickerState = (label) => {
@@ -104,10 +106,34 @@ function renderFocusToggle(enabled) {
   focusToggle.setAttribute("aria-label", enabled ? "Выключить режим концентрации" : "Включить режим концентрации");
 }
 
-chrome.storage.sync.get({ enabled: true }, settings => renderFocusToggle(settings.enabled));
+function getFocusTimerMinutes() {
+  const match = focusTimepicker?.value?.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return 0;
+  const minutes = Number(match[1]) * 60 + Number(match[2]);
+  return minutes > 0 ? minutes : 0;
+}
+
+chrome.storage.sync.get({ enabled: true, mode: "permanent", timerMinutes: 0 }, settings => {
+  renderFocusToggle(settings.enabled);
+  if (settings.mode === "timer" && Number(settings.timerMinutes) > 0) {
+    const totalMinutes = Number(settings.timerMinutes);
+    setFocusTimerValue(`${String(Math.floor(totalMinutes / 60)).padStart(2, "0")}:${String(totalMinutes % 60).padStart(2, "0")}`);
+  }
+});
 focusToggle?.addEventListener("click", async () => {
   const settings = await chrome.storage.sync.get({ enabled: true });
-  await chrome.storage.sync.set({ enabled: !settings.enabled });
+  const enabled = !settings.enabled;
+  if (!enabled) {
+    await chrome.storage.sync.set({ enabled: false });
+    return;
+  }
+  const timerMinutes = getFocusTimerMinutes();
+  await chrome.storage.sync.set({
+    enabled: true,
+    mode: timerMinutes ? "timer" : "permanent",
+    timerMinutes: timerMinutes || 0,
+    timerEndsAt: 0
+  });
 });
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.enabled) renderFocusToggle(changes.enabled.newValue);
@@ -175,15 +201,23 @@ if (focusTimepicker && window.M?.Timepicker) {
     onCloseEnd: () => {
       pickerLog("Materialize onCloseEnd");
       unlockFocusPage();
+      if (confirmTimerSelection && pendingTimerMinutes !== null) {
+        chrome.storage.sync.set({ enabled: true, mode: "timer", timerMinutes: pendingTimerMinutes, timerEndsAt: 0 });
+      }
+      pendingTimerMinutes = null;
+      confirmTimerSelection = false;
       setTimeout(() => pickerState("close + 100ms"), 100);
     },
     i18n: { cancel: "Отмена", clear: "Очистить", done: "OK" },
     onSelect: async (hours, minutes) => {
       const totalMinutes = Math.max(1, hours * 60 + minutes);
       setFocusTimerValue(`${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`);
-      await chrome.storage.sync.set({ enabled: true, mode: "timer", timerMinutes: totalMinutes, timerEndsAt: 0 });
+      pendingTimerMinutes = totalMinutes;
     }
   });
+  document.addEventListener("click", event => {
+    if (event.target.closest(".timepicker-close")) confirmTimerSelection = true;
+  }, true);
   pickerLog("Materialize Timepicker initialized", M.Timepicker.getInstance(focusTimepicker));
 }
 
