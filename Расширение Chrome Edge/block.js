@@ -228,11 +228,17 @@ if (focusTimepicker && window.M?.Timepicker) {
       pickerLog("Materialize onCloseEnd");
       unlockFocusPage();
       if (confirmTimerSelection && pendingTimerMinutes !== null) {
-        if (pendingTimerMinutes === 0) setFocusTimerValue("00:00");
+        const picker = M.Timepicker.getInstance(focusTimepicker);
+        const pickerMinutes = picker ? picker.hours * 60 + picker.minutes : 0;
+        const inputMinutes = getFocusTimerMinutes();
+        const totalMinutes = pendingTimerMinutes || inputMinutes || pickerMinutes;
+        setFocusTimerValue(totalMinutes > 0
+          ? `${String(Math.floor(totalMinutes / 60)).padStart(2, "0")}:${String(totalMinutes % 60).padStart(2, "0")}`
+          : "00:00");
         chrome.storage.sync.set({
           enabled: true,
-          mode: pendingTimerMinutes > 0 ? "timer" : "permanent",
-          timerMinutes: pendingTimerMinutes,
+          mode: totalMinutes > 0 ? "timer" : "permanent",
+          timerMinutes: totalMinutes,
           timerEndsAt: 0
         });
       }
@@ -256,13 +262,6 @@ if (focusTimepicker && window.M?.Timepicker) {
       if (confirmTimerSelection) {
         const picker = M.Timepicker.getInstance(focusTimepicker);
         pendingTimerMinutes = picker ? picker.hours * 60 + picker.minutes : (pendingTimerMinutes ?? getFocusTimerMinutes());
-        setFocusTimerValue(`${String(Math.floor(pendingTimerMinutes / 60)).padStart(2, "0")}:${String(pendingTimerMinutes % 60).padStart(2, "0")}`);
-        chrome.storage.sync.set({
-          enabled: true,
-          mode: pendingTimerMinutes > 0 ? "timer" : "permanent",
-          timerMinutes: pendingTimerMinutes,
-          timerEndsAt: 0
-        });
       }
     } else if (button.classList.contains("timepicker-clear")) {
       event.preventDefault();
