@@ -14,6 +14,7 @@ const pauseButton = document.querySelector('[data-music-action="pause"]');
 const progressRing = document.getElementById("timer-ring-progress");
 const calendarFrame = document.querySelector(".calendar-frame");
 const calendarThemeButton = document.getElementById("calendar-theme");
+const focusHeading = document.getElementById("focus-heading");
 const mainPanel = document.querySelector("main");
 const settingsButton = document.getElementById("settings-button");
 const focusHosts = document.getElementById("focus-hosts");
@@ -24,6 +25,12 @@ const ringLength = 2 * Math.PI * 95;
 const blockedUrl = new URLSearchParams(location.search).get("site");
 const isOverlay = new URLSearchParams(location.search).get("overlay") === "1";
 const defaultFocusHosts = ["youtube.com", "youtu.be", "youtube-nocookie.com"];
+if (blockedUrl) {
+  if (focusHeading) focusHeading.textContent = "Доступ ограничен";
+  document.title = "Доступ ограничен";
+} else {
+  document.title = "Фокус";
+}
 let timer;
 let restored = false;
 const PICKER_DEBUG = true;
